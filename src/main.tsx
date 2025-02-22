@@ -30,6 +30,18 @@ const sanctumConfig = {
   axiosInstance: sanctumAxiosInstance,
 }
 
+axios.interceptors.response.use(res => res, async err => { // handle 419 on request if necessary
+  const code = err.response.status;
+
+  if (code == 419) {
+    await axios.get('/sanctum/csrf-token')
+
+    return axios(err.response.config)
+  }
+
+  return Promise.reject(err);
+});
+
 createRoot(document.getElementById('root')!).render(
   <BrowserRouter>
     <Sanctum config={sanctumConfig}>
