@@ -3,7 +3,7 @@ import './index.css'
 import axios from 'axios';
 import App from './App.tsx'
 import {BrowserRouter, Routes, Route} from "react-router";
-import SignIn from "@/pages/signin/ui/SignIn.tsx";
+import SignIn from "@/components/pages/signin/SignIn.tsx";
 import {Sanctum} from "react-sanctum";
 
 axios.defaults.baseURL = import.meta.env.VITE_APP_URL;
