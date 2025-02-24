@@ -4,6 +4,7 @@ import {Button} from "@/components/ui/button.tsx";
 import {useSanctum} from "react-sanctum";
 import {useState} from "react";
 import axios from "axios";
+import {useNavigate} from "react-router";
 
 export interface registerData {
   email: string,
@@ -22,7 +23,8 @@ export interface loginData {
 }
 
 export function SignIn() {
-  const {signIn, setUser, user} = useSanctum();
+  const {signIn, checkAuthentication} = useSanctum();
+  const navigate = useNavigate();
   const [loginInput, setLoginInput] = useState({email: '', password: '', remember: true} as loginData);
   const [registerInput, setRegisterInput] = useState({
     email: '',
@@ -35,9 +37,13 @@ export function SignIn() {
   } as registerData);
 
   const handleLogin = () => {
-    signIn(loginInput.email, loginInput.password, false).catch((error) => {
+    signIn(loginInput.email, loginInput.password, false).then((res) => {
+      if (res.signedIn) {
+        navigate('/');
+      }
+    }).catch((error) => {
       console.log(error);
-    });
+    })
   }
 
   const handleLoginChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -45,7 +51,6 @@ export function SignIn() {
     let value: string | boolean;
     if (name == 'remember') {
       value = !(loginInput.remember);
-      console.log(value);
     } else {
       value = event.target.value;
     }
@@ -58,7 +63,6 @@ export function SignIn() {
   }
 
   function handleRegister() { // untested, but works fine?
-    console.log('reg', registerInput);
     axios.post('/register', {
       email: registerInput.email,
       name: registerInput.name,
@@ -67,13 +71,11 @@ export function SignIn() {
       surname: registerInput.surname,
       firstname: registerInput.firstname,
       middlename: registerInput.middlename
-    }).then(r => {
-      console.log(r)
-      const requestUser = r.data;
-      setUser(requestUser); // register method should redirect to api/user to get userdata
-      console.log(user)
+    }).then(() => {
+      checkAuthentication().then(r => {if (r) { // doesn't work sadly
+        navigate('/')
+      }}).catch(e => console.log(e))
     }).catch(e => console.log(e))
-
   }
 
   return (

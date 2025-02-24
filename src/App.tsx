@@ -1,22 +1,19 @@
 import './App.css'
-import Header from "@/components/widgets/header/Header.tsx";
-import {useSanctum} from "react-sanctum";
-import {useEffect} from "react";
-
+import {Route, Routes} from "react-router";
+import SignIn from "@/components/pages/signin/SignIn.tsx";
+import Dashboard from "@/components/pages/dashboard/Dashboard.tsx";
 
 
 function App() {
-  const {user, checkAuthentication} = useSanctum();
-
-  useEffect(()=>{
-    checkAuthentication();
-  }, []);
 
   return (
     <>
-      <Header user={user}></Header>
+      <Routes>
+        <Route path='/' element={<Dashboard/>}/>
+        <Route path='/signin' element={<SignIn/>}/>
+      </Routes>
     </>
   )
 }
 
-export default App
+export default App;

@@ -2,8 +2,7 @@ import {createRoot} from 'react-dom/client'
 import './index.css'
 import axios from 'axios';
 import App from './App.tsx'
-import {BrowserRouter, Routes, Route} from "react-router";
-import SignIn from "@/components/pages/signin/SignIn.tsx";
+import {BrowserRouter} from "react-router";
 import {Sanctum} from "react-sanctum";
 
 axios.defaults.baseURL = import.meta.env.VITE_APP_URL;
@@ -44,11 +43,8 @@ axios.interceptors.response.use(res => res, async err => { // handle 419 on requ
 
 createRoot(document.getElementById('root')!).render(
   <BrowserRouter>
-    <Sanctum config={sanctumConfig}>
-      <Routes>
-        <Route path='/' element={<App/>}/>
-        <Route path='/signin' element={<SignIn/>}/>
-      </Routes>
+    <Sanctum config={sanctumConfig} checkOnInit={true}>
+        <App/>
     </Sanctum>
   </BrowserRouter>
 )
