@@ -23,7 +23,7 @@ export interface loginData {
 }
 
 export function SignIn() {
-  const {signIn, checkAuthentication} = useSanctum();
+  const {signIn} = useSanctum();
   const navigate = useNavigate();
   const [loginInput, setLoginInput] = useState({email: '', password: '', remember: true} as loginData);
   const [registerInput, setRegisterInput] = useState({
@@ -35,6 +35,8 @@ export function SignIn() {
     password: '',
     password_confirmation: ''
   } as registerData);
+  const [loginError, setLoginError] = useState('');
+  const [registerError, setRegisterError] = useState([]);
 
   const handleLogin = () => {
     signIn(loginInput.email, loginInput.password, false).then((res) => {
@@ -42,7 +44,7 @@ export function SignIn() {
         navigate('/');
       }
     }).catch((error) => {
-      console.log(error);
+      setLoginError(error.response.data.message);
     })
   }
 
@@ -72,10 +74,8 @@ export function SignIn() {
       firstname: registerInput.firstname,
       middlename: registerInput.middlename
     }).then(() => {
-      checkAuthentication().then(r => {if (r) { // doesn't work sadly
-        navigate('/')
-      }}).catch(e => console.log(e))
-    }).catch(e => console.log(e))
+      navigate('/');
+    }).catch(e => {console.log(e); setRegisterError(e.response.data)}); // TODO: error handling
   }
 
   return (
@@ -104,7 +104,7 @@ export function SignIn() {
                   <label className={'block font-medium tracking-tight'} htmlFor={'emailLogin'}>email</label>
                   <input className={'block outline-1 rounded-sm py-1 px-2 w-full'} id={'emailLogin'} name={'email'}
                          type={'text'} value={loginInput.email} onChange={handleLoginChange}
-                         placeholder={'user@example.com'}/>
+                         placeholder={'user@example.com'} required={true}/>
                   <span className={'block text-sm text-muted-foreground'}>
                   email must be lowercase
                 </span>
@@ -113,11 +113,12 @@ export function SignIn() {
                   <label className={'block font-medium tracking-tight'} htmlFor={'passwordLogin'}>password</label>
                   <input className={'block outline-1 rounded-sm py-1 px-2 w-full'} id={'passwordLogin'}
                          name={'password'} value={loginInput.password} onChange={handleLoginChange} type={'password'}
-                         placeholder={'pwd'}/>
+                         placeholder={'pwd'} required={true}/>
                   <span className={'block text-sm text-muted-foreground'}>
                   password should be atleast 6 characters long
                 </span>
                 </div>
+                <a id={'loginErrorBox'} className={'text-red-500'}>{loginError}</a>
                 <div className={'flex flex-row gap-4 items-center justify-start'}>
                   <Button variant={'outline'} className={'w-24'} onClick={handleLogin}>Login</Button>
                   <a className={'flex gap-1'}><input type={'checkbox'} name={'remember'} checked={loginInput.remember}
@@ -185,6 +186,11 @@ export function SignIn() {
                   <span className={'block text-sm text-muted-foreground'}>
                   password should be atleast 6 characters long
                 </span>
+                  {/*<ul>*/}
+                  {/*  {registerError.map((error, index) => {*/}
+                  {/*    return <li key={index} className={'text-red-500'}>{error}</li>*/}
+                  {/*  })}*/}
+                  {/*</ul> unused*/}
                 </div>
                 <Button variant={'outline'} onClick={handleRegister}>Register</Button>
               </div>

@@ -55,7 +55,7 @@ function UserHolder({user, logout}: UserHolderProps) {
         </DropdownMenuGroup>
         <DropdownMenuGroup>
           <DropdownMenuItem>
-            <button onClick={()=>{logout().then(()=>window.location.reload())}}>Logout</button> // could be completely useless refresh, needs checking
+            <button onClick={()=>{logout().then(()=>window.location.reload())}}>Logout</button> {/* could be completely useless refresh, needs checking */}
           </DropdownMenuItem>
         </DropdownMenuGroup>
       </DropdownMenuContent>
