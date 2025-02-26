@@ -9,13 +9,13 @@ import {Avatar, AvatarFallback} from "@/components/ui/avatar.tsx";
 import {Link} from "react-router";
 
 interface UserHolderProps {
-  user: User,
-  logout: () => Promise<void>
+  userData: {data: User} | null,
+  logout: () => Promise<void>,
 }
 
-function UserHolder({user, logout}: UserHolderProps) {
+function UserHolder({userData, logout}: UserHolderProps) {
 
-  if (!user) {
+  if (!userData) {
     return (
       <DropdownMenu>
         <DropdownMenuTrigger className={'flex flex-row gap-2 items-center'}>
@@ -34,6 +34,8 @@ function UserHolder({user, logout}: UserHolderProps) {
       </DropdownMenu>
     )
   }
+
+  const user = userData.data as User;
 
   return (
     <DropdownMenu>
