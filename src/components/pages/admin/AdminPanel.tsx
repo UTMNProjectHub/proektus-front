@@ -2,7 +2,7 @@ import Header from "@/components/widgets/header/Header.tsx";
 import {useSanctum} from "react-sanctum";
 import {useNavigate} from "react-router";
 import {useEffect} from "react";
-import {SyncLoader} from "react-spinners";
+import GenericLoader from "@/components/ui/genericLoader.tsx";
 
 function AdminPanel() {
   const {user, authenticated} = useSanctum();
@@ -17,17 +17,12 @@ function AdminPanel() {
       navigate('/401');
     }
 
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [authenticated])
 
   if (authenticated === null) {
     return (
-      <>
-        <Header/>
-        <div className={'grid h-screen place-items-center'}>
-          <SyncLoader className={'rotate-90'}/>
-        </div>
-
-      </>
+      <GenericLoader/>
     )
   }
 

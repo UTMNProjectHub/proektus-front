@@ -60,9 +60,11 @@ function UserHolder() {
         </DropdownMenuLabel>
         <DropdownMenuSeparator/>
         <DropdownMenuGroup>
-          <DropdownMenuItem>
-            Profile
-          </DropdownMenuItem>
+          <Link to={'/profile'}>
+            <DropdownMenuItem>
+              Profile
+            </DropdownMenuItem>
+          </Link>
         </DropdownMenuGroup>
         <DropdownMenuGroup>
           <DropdownMenuItem>
