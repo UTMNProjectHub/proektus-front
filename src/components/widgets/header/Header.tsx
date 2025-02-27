@@ -1,14 +1,14 @@
 import {Link} from "react-router";
 import {useSanctum} from "react-sanctum";
 import UserHolder from "@/components/widgets/header/UserHolder.tsx";
-import {memo} from "react";
+import {memo, ReactNode} from "react";
 
 
-// interface HeaderProps {
-//   user: User
-// }
+interface HeaderProps {
+  children?: ReactNode;
+}
 
-function Header() {
+function Header({children}: HeaderProps) {
   const {signOut, user} = useSanctum();
 
   return (
@@ -18,6 +18,7 @@ function Header() {
           <a className={'text-2xl font-extrabold tracking-tighter'}>Проектус</a>
         </div>
       </Link>
+      {children}
       <UserHolder userData={user} logout={signOut}/>
     </nav>
   )

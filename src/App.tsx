@@ -17,6 +17,7 @@ function App() {
         <Route path='/admin' element={<AdminPanel/>}/>
         <Route path='/profile' element={<Profile/>}/>
         <Route path='*' element={<ErrorPage error={404} message={'Page not found'}/>}/>
+        <Route path='401' element={<ErrorPage error={401} message={'Unauthorized'}/>}/>
       </Routes>
     </>
   )
