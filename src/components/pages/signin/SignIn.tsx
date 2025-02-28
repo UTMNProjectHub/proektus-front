@@ -1,205 +1,340 @@
-import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/components/ui/tabs.tsx";
-import {Card, CardContent, CardDescription, CardHeader, CardTitle} from "@/components/ui/card.tsx";
-import {Button} from "@/components/ui/button.tsx";
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage
+} from "@/components/ui/form.tsx";
+import {useForm} from "react-hook-form";
+import {z} from "zod";
+import {Input} from "@/components/ui/input.tsx";
+import {zodResolver} from "@hookform/resolvers/zod";
+import {useNavigate} from "react-router";
 import {useSanctum} from "react-sanctum";
+import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/components/ui/tabs.tsx";
+import {Card, CardContent, CardHeader} from "@/components/ui/card";
+import {Button} from "@/components/ui/button.tsx";
 import {useState} from "react";
 import axios from "axios";
-import {useNavigate} from "react-router";
+import GenericLoader from "@/components/ui/genericLoader.tsx";
+import Header from "@/components/widgets/header/Header.tsx";
+import {Avatar, AvatarFallback} from "@/components/ui/avatar.tsx";
 
-export interface registerData {
-  email: string,
-  name: string,
-  password: string,
-  password_confirmation: string,
-  surname: string,
-  firstname: string,
-  middlename: string | undefined,
-}
+const loginSchema = z.object({
+  email: z.string().email(),
+  password: z.string().min(6),
+  remember: z.boolean(),
+});
 
-export interface loginData {
-  email: string,
-  password: string,
-  remember: boolean,
-}
+const registerSchema = z.object({
+  email: z.string().email(),
+  password: z.string().min(6),
+  password_confirmation: z.string().min(6),
+  name: z.string().min(3),
+  firstname: z.string(),
+  surname: z.string(),
+  middlename: z.string().optional(),
+}).superRefine(({password, password_confirmation}, ctx) => {
+  if (password !== password_confirmation) {
+    ctx.addIssue({
+      code: 'custom',
+      message: 'passwords do not match',
+      path: ['password_confirmation'],
+    });
+  }
+})
 
-export function SignIn() {
-  const {signIn} = useSanctum();
+function NewSignIn() {
+  const {signIn, authenticated, user, signOut} = useSanctum();
+  const [loginError, setLoginError] = useState<string | null>(null);
+  const [registerError, setRegisterError] = useState<object | null>(null);
   const navigate = useNavigate();
-  const [loginInput, setLoginInput] = useState({email: '', password: '', remember: true} as loginData);
-  const [registerInput, setRegisterInput] = useState({
-    email: '',
-    name: '',
-    surname: '',
-    firstname: '',
-    middlename: '',
-    password: '',
-    password_confirmation: ''
-  } as registerData);
-  const [loginError, setLoginError] = useState('');
-  const [registerError, setRegisterError] = useState([]);
 
-  const handleLogin = () => {
-    signIn(loginInput.email, loginInput.password, false).then((res) => {
+  const loginForm = useForm<z.infer<typeof loginSchema>>({
+    resolver: zodResolver(loginSchema),
+  });
+
+  const registerForm = useForm<z.infer<typeof registerSchema>>({
+    resolver: zodResolver(registerSchema),
+  });
+
+  function onLoginSubmit(values: z.infer<typeof loginSchema>) {
+    signIn(values.email, values.password, true).then((res) => {
       if (res.signedIn) {
         navigate('/');
       }
-    }).catch((error) => {
-      setLoginError(error.response.data.message);
-    })
+    }).catch((err) => {
+      console.log(err);
+      setLoginError(err.response.data.message)
+    });
   }
 
-  const handleLoginChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const {name} = event.target;
-    let value: string | boolean;
-    if (name == 'remember') {
-      value = !(loginInput.remember);
-    } else {
-      value = event.target.value;
-    }
-    setLoginInput(prevState => ({...prevState, [name]: value}));
-  }
-
-  const handleRegisterChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const {name, value} = event.target;
-    setRegisterInput(prevState => ({...prevState, [name]: value}));
-  }
-
-  function handleRegister() { // untested, but works fine?
+  function onRegisterSubmit(values: z.infer<typeof registerSchema>) { // untested, but works fine?
     axios.post('/register', {
-      email: registerInput.email,
-      name: registerInput.name,
-      password: registerInput.password,
-      password_confirmation: registerInput.password_confirmation,
-      surname: registerInput.surname,
-      firstname: registerInput.firstname,
-      middlename: registerInput.middlename
+      email: values.email,
+      name: values.name,
+      password: values.password,
+      password_confirmation: values.password_confirmation,
+      surname: values.surname,
+      firstname: values.firstname,
+      middlename: values.middlename
     }).then(() => {
       navigate('/');
-    }).catch(e => {console.log(e); setRegisterError(e.response.data)}); // TODO: error handling
+    }).catch(e => {
+      console.log(e);
+      setRegisterError(e.response.data[0])
+    });
+  }
+
+  if (authenticated === null) {
+    return (
+      <GenericLoader/>
+    )
+  }
+
+  if (authenticated) {
+    return (
+      <>
+        <Header/>
+        <Card className={'max-w-md mx-auto my-8'}>
+          <CardHeader className={'text-center font-bold'}>
+            You are already signed in as
+          </CardHeader>
+          <CardContent>
+            <Avatar className={'size-16 mx-auto mb-2'}>
+              <AvatarFallback>
+                {user.data.firstname.slice(0, 1)}
+              </AvatarFallback>
+            </Avatar>
+            <div className={'flex flex-col text-center'}>
+              <span>
+                {user.data.surname} {user.data.firstname.slice(0, 1)}. (@{user.data.name})
+              </span>
+              <Button variant={'link'} onClick={signOut}>Sign out</Button>
+            </div>
+          </CardContent>
+        </Card>
+      </>
+    )
   }
 
   return (
-    <div className={'max-w-md mx-auto my-8'}>
-      <div className={'mb-4'}>
-        <a className={'text-3xl tracking-tighter'}>Proektus</a>
-      </div>
-      <Tabs defaultValue={'login'} className={'font-inter lowercase'}>
-        <TabsList className={'grid w-full grid-cols-2'}>
-          <TabsTrigger value={'login'}>Login</TabsTrigger>
-          <TabsTrigger value={'register'}>Register</TabsTrigger>
-        </TabsList>
-        <TabsContent value={'login'}>
-          <Card>
-            <CardHeader>
-              <CardTitle>
+    <><Header/>
+      <div className={'max-w-md mx-auto my-8'}>
+        <Tabs defaultValue={'login'}>
+          <TabsList className={'grid w-full grid-cols-2'}>
+            <TabsTrigger value={'login'}>
+              Login
+            </TabsTrigger>
+            <TabsTrigger value={'register'}>
+              Register
+            </TabsTrigger>
+          </TabsList>
+          <TabsContent value={'login'}>
+            <Card>
+              <CardHeader>
                 Login
-              </CardTitle>
-              <CardDescription>
-                Login with your credentials.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className={'grid gap-2'}>
-                <div className={'space-y-2'}>
-                  <label className={'block font-medium tracking-tight'} htmlFor={'emailLogin'}>email</label>
-                  <input className={'block outline-1 rounded-sm py-1 px-2 w-full'} id={'emailLogin'} name={'email'}
-                         type={'text'} value={loginInput.email} onChange={handleLoginChange}
-                         placeholder={'user@example.com'} required={true}/>
-                  <span className={'block text-sm text-muted-foreground'}>
-                  email must be lowercase
-                </span>
-                </div>
-                <div className={'space-y-2'}>
-                  <label className={'block font-medium tracking-tight'} htmlFor={'passwordLogin'}>password</label>
-                  <input className={'block outline-1 rounded-sm py-1 px-2 w-full'} id={'passwordLogin'}
-                         name={'password'} value={loginInput.password} onChange={handleLoginChange} type={'password'}
-                         placeholder={'pwd'} required={true}/>
-                  <span className={'block text-sm text-muted-foreground'}>
-                  password should be atleast 6 characters long
-                </span>
-                </div>
-                <a id={'loginErrorBox'} className={'text-red-500'}>{loginError}</a>
-                <div className={'flex flex-row gap-4 items-center justify-start'}>
-                  <Button variant={'outline'} className={'w-24'} onClick={handleLogin}>Login</Button>
-                  <a className={'flex gap-1'}><input type={'checkbox'} name={'remember'} checked={loginInput.remember}
-                                                     onChange={handleLoginChange}/>Remember me</a>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-        <TabsContent value={'register'}>
-          <Card>
-            <CardHeader>
-              <CardTitle>
+              </CardHeader>
+              <CardContent>
+                <Form {...loginForm}>
+                  <form onSubmit={loginForm.handleSubmit(onLoginSubmit)} className={'space-y-6'}>
+                    {loginError && <Card>
+                        <CardHeader className={'font-bold'}>
+                            Error!
+                        </CardHeader>
+                        <CardContent className={'text-destructive-foreground'}>
+                          {loginError}
+                        </CardContent>
+                    </Card>}
+                    <FormField control={loginForm.control} name={'email'} render={({field}) => {
+                      return (
+                        <FormItem>
+                          <FormLabel>email</FormLabel>
+                          <FormControl>
+                            <Input placeholder={'example@utmn.ru'} {...field} />
+                          </FormControl>
+                          <FormDescription>
+                            email must be lowercase
+                          </FormDescription>
+                          <FormMessage/>
+                        </FormItem>
+                      );
+                    }}/>
+                    <FormField control={loginForm.control} name={'password'} render={({field}) => {
+                      return (
+                        <FormItem>
+                          <FormLabel>password</FormLabel>
+                          <FormControl>
+                            <Input type={'password'} placeholder={'******'} {...field} />
+                          </FormControl>
+                          <FormDescription>
+                            password must be at least 6 characters
+                          </FormDescription>
+                          <FormMessage/>
+                        </FormItem>
+                      );
+                    }}/>
+                    <div className={'flex flex-row space-x-4'}>
+                      <Button variant={'outline'} className={'w-32'}
+                              onClick={loginForm.handleSubmit(onLoginSubmit)}>Login</Button>
+                      <FormField control={loginForm.control} name={'remember'} render={({field}) => {
+                        return (
+                          <FormItem className={'flex flex-row items-center'}>
+                            <FormLabel>
+                              remember me
+                            </FormLabel>
+                            <FormControl>
+                              <input type={'checkbox'} checked={field.value} onChange={field.onChange}
+                                     name={field.name}/>
+                            </FormControl>
+                          </FormItem>
+                        );
+                      }}/>
+                    </div>
+                  </form>
+                </Form>
+
+              </CardContent>
+
+            </Card>
+          </TabsContent>
+          <TabsContent value={'register'}>
+            <Card>
+              <CardHeader>
                 Register
-              </CardTitle>
-              <CardDescription>
-                Register as a new user.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className={'grid gap-2'}>
-                <div className={'space-y-2'}>
-                  <label className={'block font-medium tracking-tight'} htmlFor={'emailRegister'}>email</label>
-                  <input className={'block outline-1 rounded-sm py-1 px-2 w-full'} id={'emailRegister'} name={'email'}
-                         type={'text'} value={registerInput.email} onChange={handleRegisterChange}
-                         placeholder={'user@utmn.ru'}/>
-                  <span className={'block text-sm text-muted-foreground'}>
-                  email must be lowercase
-                </span>
-                </div>
-                <div className={'space-y-2'}>
-                  <label className={'block font-medium tracking-tight'} htmlFor={'nameRegister'}>username</label>
-                  <input className={'block outline-1 rounded-sm py-1 px-2 w-full'} id={'nameRegister'} name={'name'}
-                         type={'text'} value={registerInput.name} onChange={handleRegisterChange}
-                         placeholder={'username'}/>
-                  <span className={'block text-sm text-muted-foreground'}>
-                  username will be visible to others
-                </span>
-                </div>
-                <div className={'space-y-2'}>
-                  <label className={'block font-medium tracking-tight'}>fullname</label>
-                  <input className={'block outline-1 rounded-sm py-1 px-2 w-full'} id={'surnameRegister'}
-                         name={'surname'} value={registerInput.surname} onChange={handleRegisterChange} type={'text'}
-                         placeholder={'Ivanov'}/>
-                  <input className={'block outline-1 rounded-sm py-1 px-2 w-full'} id={'firstnameRegister'}
-                         name={'firstname'} value={registerInput.firstname} onChange={handleRegisterChange}
-                         type={'text'}
-                         placeholder={'Ivan'}/>
-                  <input className={'block outline-1 rounded-sm py-1 px-2 w-full'} id={'middlenameRegister'}
-                         name={'middlename'} value={registerInput.middlename} onChange={handleRegisterChange}
-                         type={'text'} placeholder={'Ivanovich'}/>
-                  <span className={'block text-sm text-muted-foreground'}>
-                  your fullname will be visible to others only when its necessary
-                </span>
-                </div>
-                <div className={'space-y-2'}>
-                  <label className={'block font-medium tracking-tight'} htmlFor={'passwordRegister'}>password</label>
-                  <input className={'block outline-1 rounded-sm py-1 px-2 w-full'} id={'passwordRegister'}
-                         name={'password'} value={registerInput.password} onChange={handleRegisterChange}
-                         type={'password'}
-                         placeholder={'pwd'}/>
-                  <input className={'block outline-1 rounded-sm py-1 px-2 w-full'} id={'passwordConfirmationRegister'}
-                         name={'password_confirmation'} value={registerInput.password_confirmation}
-                         onChange={handleRegisterChange} type={'password'} placeholder={'confirm pwd'}/>
-                  <span className={'block text-sm text-muted-foreground'}>
-                  password should be atleast 6 characters long
-                </span>
-                  {/*<ul>*/}
-                  {/*  {registerError.map((error, index) => {*/}
-                  {/*    return <li key={index} className={'text-red-500'}>{error}</li>*/}
-                  {/*  })}*/}
-                  {/*</ul> unused*/}
-                </div>
-                <Button variant={'outline'} onClick={handleRegister}>Register</Button>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
-    </div>
+              </CardHeader>
+              <CardContent>
+                <Form {...registerForm}>
+                  <form onSubmit={registerForm.handleSubmit(onRegisterSubmit)} className={'space-y-6'}>
+                    {registerError && <Card>
+                        <CardHeader className={'font-bold'}>
+                            Error!
+                        </CardHeader>
+                        <CardContent className={'text-destructive-foreground'}>
+                          {Object.keys(registerError).map((key) => {
+                            return (
+                              <div key={key}>
+                                <span className={'font-bold'}>{key}</span>
+                                <ul>
+                                  {Object.entries(registerError).map(([k, v]) => {
+                                    return (
+                                      <li key={k}>{v}</li>
+                                    );
+                                  })}
+                                </ul>
+                              </div>
+                            );
+                          })}
+                        </CardContent>
+                    </Card>}
+                    <FormField control={registerForm.control} name={'email'} render={({field}) => {
+                      return (
+                        <FormItem>
+                          <FormLabel>email</FormLabel>
+                          <FormControl>
+                            <Input type={'email'} placeholder={'example@utmn.ru'} {...field} />
+                          </FormControl>
+                          <FormDescription>
+                            your email address, lowercase
+                          </FormDescription>
+                          <FormMessage/>
+                        </FormItem>
+                      );
+                    }}/>
+                    <FormField control={registerForm.control} name={'name'} render={({field}) => {
+                      return (
+                        <FormItem>
+                          <FormLabel>username</FormLabel>
+                          <FormControl>
+                            <Input placeholder={'username'} {...field} />
+                          </FormControl>
+                          <FormDescription>
+                            your username, must be unique
+                          </FormDescription>
+                          <FormMessage/>
+                        </FormItem>
+                      );
+                    }}/>
+                    <FormField control={registerForm.control} name={'password'} render={({field}) => {
+                      return (
+                        <FormItem>
+                          <FormLabel>password</FormLabel>
+                          <FormControl>
+                            <Input type={'password'} placeholder={'******'} {...field} />
+                          </FormControl>
+                          <FormDescription>
+                            password must be at least 6 characters
+                          </FormDescription>
+                          <FormMessage/>
+                        </FormItem>
+                      );
+                    }}/>
+                    <FormField control={registerForm.control} name={'password_confirmation'} render={({field}) => {
+                      return (
+                        <FormItem>
+                          <FormLabel>confirm password</FormLabel>
+                          <FormControl>
+                            <Input type={'password'} placeholder={'******'} {...field} />
+                          </FormControl>
+                          <FormDescription>
+                            confirm your password
+                          </FormDescription>
+                          <FormMessage/>
+                        </FormItem>
+                      );
+                    }}/>
+                    <FormField control={registerForm.control} name={'surname'} render={({field}) => {
+                      return (
+                        <FormItem>
+                          <FormLabel>surname</FormLabel>
+                          <FormControl>
+                            <Input placeholder={'Ivanov'} {...field} />
+                          </FormControl>
+                          <FormMessage/>
+                        </FormItem>
+                      );
+                    }}/>
+                    <FormField control={registerForm.control} name={'firstname'} render={({field}) => {
+                      return (
+                        <FormItem>
+                          <FormLabel>firstname</FormLabel>
+                          <FormControl>
+                            <Input placeholder={'Ivan'} {...field} />
+                          </FormControl>
+                          <FormMessage/>
+                        </FormItem>
+                      );
+                    }}/>
+                    <FormField control={registerForm.control} name={'middlename'} render={({field}) => {
+                      return (
+                        <FormItem>
+                          <FormLabel>middlename</FormLabel>
+                          <FormControl>
+                            <Input placeholder={'Ivanovich'} {...field} />
+                          </FormControl>
+                          <FormMessage/>
+                        </FormItem>
+                      );
+                    }}/>
+                    <div className={'flex justify-center flex-row space-x-4'}>
+                      <Button variant={'outline'} className={'w-48'}
+                              onClick={registerForm.handleSubmit(onRegisterSubmit)}>Register</Button>
+                    </div>
+                  </form>
+                </Form>
+              </CardContent>
+            </Card>
+
+          </TabsContent>
+        </Tabs>
+
+
+      </div>
+    </>
+
   )
 }
 
-export default SignIn;
+export default NewSignIn;

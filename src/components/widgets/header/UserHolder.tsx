@@ -1,4 +1,3 @@
-import {User} from "@/models/user/type.ts";
 import {
   DropdownMenu,
   DropdownMenuContent, DropdownMenuGroup,
@@ -6,23 +5,34 @@ import {
   DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu.tsx";
 import {Avatar, AvatarFallback} from "@/components/ui/avatar.tsx";
-import {Link} from "react-router";
+import {Link, useNavigate} from "react-router";
+import {useSanctum} from "react-sanctum";
+import {Skeleton} from "@/components/ui/skeleton.tsx";
 
-interface UserHolderProps {
-  user: User,
-  logout: () => Promise<void>
-}
+function UserHolder() {
 
-function UserHolder({user, logout}: UserHolderProps) {
+  const {user, authenticated, signOut} = useSanctum();
+  const navigate = useNavigate();
 
-  if (!user) {
+  if (authenticated === null) {
+    return (
+      <DropdownMenu>
+        <DropdownMenuTrigger className={'flex flex-row gap-2 items-center'}>
+          <Skeleton className={'size-8 shrink-0 overflow-hidden rounded-full'}/>
+          <Skeleton className={'w-32 h-4'} />
+        </DropdownMenuTrigger>
+      </DropdownMenu>
+    );
+  }
+
+  if (!authenticated || !user) {
     return (
       <DropdownMenu>
         <DropdownMenuTrigger className={'flex flex-row gap-2 items-center'}>
           <Avatar>
             <AvatarFallback>G</AvatarFallback>
           </Avatar>
-          <a>Guest</a>
+          <span>Guest</span>
         </DropdownMenuTrigger>
         <DropdownMenuContent>
           <Link to={"/signin"}>
@@ -35,13 +45,16 @@ function UserHolder({user, logout}: UserHolderProps) {
     )
   }
 
+  const fullName = user.data.middlename ? `${user.data.surname} ${user.data.firstname.slice(0, 1)} ${user.data.middlename.slice(0, 1)}.` : `${user.data.surname} ${user.data.firstname.slice(0, 1)}.`;
+
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger className={'flex flex-row gap-2 items-center'}>
         <Avatar>
-          <AvatarFallback>{user.firstname.slice(0, 1)}</AvatarFallback>
+          <AvatarFallback>{user.data.firstname.slice(0, 1)}</AvatarFallback>
         </Avatar>
-        <a>{user.name}</a>
+        <span>{fullName} (@{user.data.name})</span>
       </DropdownMenuTrigger>
       <DropdownMenuContent>
         <DropdownMenuLabel>
@@ -49,13 +62,15 @@ function UserHolder({user, logout}: UserHolderProps) {
         </DropdownMenuLabel>
         <DropdownMenuSeparator/>
         <DropdownMenuGroup>
-          <DropdownMenuItem>
-            Profile
-          </DropdownMenuItem>
+          <Link to={'/profile'}>
+            <DropdownMenuItem>
+              Profile
+            </DropdownMenuItem>
+          </Link>
         </DropdownMenuGroup>
         <DropdownMenuGroup>
           <DropdownMenuItem>
-            <button onClick={()=>{logout().then(()=>window.location.reload())}}>Logout</button> {/* could be completely useless refresh, needs checking */}
+            <button className={'w-full text-left'} onClick={()=>{signOut().then(()=>navigate('/'))}}>Logout</button> {/* could be completely useless refresh, needs checking */}
           </DropdownMenuItem>
         </DropdownMenuGroup>
       </DropdownMenuContent>
