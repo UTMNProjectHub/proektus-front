@@ -19,7 +19,6 @@ import {Button} from "@/components/ui/button.tsx";
 import {useState} from "react";
 import axios from "axios";
 import GenericLoader from "@/components/ui/genericLoader.tsx";
-import Header from "@/components/widgets/header/Header.tsx";
 import {Avatar, AvatarFallback} from "@/components/ui/avatar.tsx";
 
 const loginSchema = z.object({
@@ -96,8 +95,7 @@ function NewSignIn() {
 
   if (authenticated) {
     return (
-      <>
-        <Header/>
+      <div className={''}>
         <Card className={'max-w-md mx-auto my-8'}>
           <CardHeader className={'text-center font-bold'}>
             You are already signed in as
@@ -116,224 +114,219 @@ function NewSignIn() {
             </div>
           </CardContent>
         </Card>
-      </>
+      </div>
     )
   }
 
   return (
-    <><Header/>
-      <div className={'max-w-md mx-auto my-8'}>
-        <Tabs defaultValue={'login'}>
-          <TabsList className={'grid w-full grid-cols-2'}>
-            <TabsTrigger value={'login'}>
+    <div className={'max-w-md mx-auto my-8'}>
+      <Tabs defaultValue={'login'}>
+        <TabsList className={'grid w-full grid-cols-2'}>
+          <TabsTrigger value={'login'}>
+            Login
+          </TabsTrigger>
+          <TabsTrigger value={'register'}>
+            Register
+          </TabsTrigger>
+        </TabsList>
+        <TabsContent value={'login'}>
+          <Card>
+            <CardHeader>
               Login
-            </TabsTrigger>
-            <TabsTrigger value={'register'}>
+            </CardHeader>
+            <CardContent>
+              <Form {...loginForm}>
+                <form onSubmit={loginForm.handleSubmit(onLoginSubmit)} className={'space-y-6'}>
+                  {loginError && <Card>
+                      <CardHeader className={'font-bold'}>
+                          Error!
+                      </CardHeader>
+                      <CardContent className={'text-destructive-foreground'}>
+                        {loginError}
+                      </CardContent>
+                  </Card>}
+                  <FormField control={loginForm.control} name={'email'} render={({field}) => {
+                    return (
+                      <FormItem>
+                        <FormLabel>email</FormLabel>
+                        <FormControl>
+                          <Input placeholder={'example@utmn.ru'} {...field} />
+                        </FormControl>
+                        <FormDescription>
+                          email must be lowercase
+                        </FormDescription>
+                        <FormMessage/>
+                      </FormItem>
+                    );
+                  }}/>
+                  <FormField control={loginForm.control} name={'password'} render={({field}) => {
+                    return (
+                      <FormItem>
+                        <FormLabel>password</FormLabel>
+                        <FormControl>
+                          <Input type={'password'} placeholder={'******'} {...field} />
+                        </FormControl>
+                        <FormDescription>
+                          password must be at least 6 characters
+                        </FormDescription>
+                        <FormMessage/>
+                      </FormItem>
+                    );
+                  }}/>
+                  <div className={'flex flex-row space-x-4'}>
+                    <Button variant={'outline'} className={'w-32'}
+                            onClick={loginForm.handleSubmit(onLoginSubmit)}>Login</Button>
+                    <FormField control={loginForm.control} name={'remember'} render={({field}) => {
+                      return (
+                        <FormItem className={'flex flex-row items-center'}>
+                          <FormLabel>
+                            remember me
+                          </FormLabel>
+                          <FormControl>
+                            <input type={'checkbox'} checked={field.value} onChange={field.onChange}
+                                   name={field.name}/>
+                          </FormControl>
+                        </FormItem>
+                      );
+                    }}/>
+                  </div>
+                </form>
+              </Form>
+
+            </CardContent>
+
+          </Card>
+        </TabsContent>
+        <TabsContent value={'register'}>
+          <Card>
+            <CardHeader>
               Register
-            </TabsTrigger>
-          </TabsList>
-          <TabsContent value={'login'}>
-            <Card>
-              <CardHeader>
-                Login
-              </CardHeader>
-              <CardContent>
-                <Form {...loginForm}>
-                  <form onSubmit={loginForm.handleSubmit(onLoginSubmit)} className={'space-y-6'}>
-                    {loginError && <Card>
-                        <CardHeader className={'font-bold'}>
-                            Error!
-                        </CardHeader>
-                        <CardContent className={'text-destructive-foreground'}>
-                          {loginError}
-                        </CardContent>
-                    </Card>}
-                    <FormField control={loginForm.control} name={'email'} render={({field}) => {
-                      return (
-                        <FormItem>
-                          <FormLabel>email</FormLabel>
-                          <FormControl>
-                            <Input placeholder={'example@utmn.ru'} {...field} />
-                          </FormControl>
-                          <FormDescription>
-                            email must be lowercase
-                          </FormDescription>
-                          <FormMessage/>
-                        </FormItem>
-                      );
-                    }}/>
-                    <FormField control={loginForm.control} name={'password'} render={({field}) => {
-                      return (
-                        <FormItem>
-                          <FormLabel>password</FormLabel>
-                          <FormControl>
-                            <Input type={'password'} placeholder={'******'} {...field} />
-                          </FormControl>
-                          <FormDescription>
-                            password must be at least 6 characters
-                          </FormDescription>
-                          <FormMessage/>
-                        </FormItem>
-                      );
-                    }}/>
-                    <div className={'flex flex-row space-x-4'}>
-                      <Button variant={'outline'} className={'w-32'}
-                              onClick={loginForm.handleSubmit(onLoginSubmit)}>Login</Button>
-                      <FormField control={loginForm.control} name={'remember'} render={({field}) => {
-                        return (
-                          <FormItem className={'flex flex-row items-center'}>
-                            <FormLabel>
-                              remember me
-                            </FormLabel>
-                            <FormControl>
-                              <input type={'checkbox'} checked={field.value} onChange={field.onChange}
-                                     name={field.name}/>
-                            </FormControl>
-                          </FormItem>
-                        );
-                      }}/>
-                    </div>
-                  </form>
-                </Form>
+            </CardHeader>
+            <CardContent>
+              <Form {...registerForm}>
+                <form onSubmit={registerForm.handleSubmit(onRegisterSubmit)} className={'space-y-6'}>
+                  {registerError && <Card>
+                      <CardHeader className={'font-bold'}>
+                          Error!
+                      </CardHeader>
+                      <CardContent className={'text-destructive-foreground'}>
+                        {Object.keys(registerError).map((key) => {
+                          return (
+                            <div key={key}>
+                              <span className={'font-bold'}>{key}</span>
+                              <ul>
+                                {Object.entries(registerError).map(([k, v]) => {
+                                  return (
+                                    <li key={k}>{v}</li>
+                                  );
+                                })}
+                              </ul>
+                            </div>
+                          );
+                        })}
+                      </CardContent>
+                  </Card>}
+                  <FormField control={registerForm.control} name={'email'} render={({field}) => {
+                    return (
+                      <FormItem>
+                        <FormLabel>email</FormLabel>
+                        <FormControl>
+                          <Input type={'email'} placeholder={'example@utmn.ru'} {...field} />
+                        </FormControl>
+                        <FormDescription>
+                          your email address, lowercase
+                        </FormDescription>
+                        <FormMessage/>
+                      </FormItem>
+                    );
+                  }}/>
+                  <FormField control={registerForm.control} name={'name'} render={({field}) => {
+                    return (
+                      <FormItem>
+                        <FormLabel>username</FormLabel>
+                        <FormControl>
+                          <Input placeholder={'username'} {...field} />
+                        </FormControl>
+                        <FormDescription>
+                          your username, must be unique
+                        </FormDescription>
+                        <FormMessage/>
+                      </FormItem>
+                    );
+                  }}/>
+                  <FormField control={registerForm.control} name={'password'} render={({field}) => {
+                    return (
+                      <FormItem>
+                        <FormLabel>password</FormLabel>
+                        <FormControl>
+                          <Input type={'password'} placeholder={'******'} {...field} />
+                        </FormControl>
+                        <FormDescription>
+                          password must be at least 6 characters
+                        </FormDescription>
+                        <FormMessage/>
+                      </FormItem>
+                    );
+                  }}/>
+                  <FormField control={registerForm.control} name={'password_confirmation'} render={({field}) => {
+                    return (
+                      <FormItem>
+                        <FormLabel>confirm password</FormLabel>
+                        <FormControl>
+                          <Input type={'password'} placeholder={'******'} {...field} />
+                        </FormControl>
+                        <FormDescription>
+                          confirm your password
+                        </FormDescription>
+                        <FormMessage/>
+                      </FormItem>
+                    );
+                  }}/>
+                  <FormField control={registerForm.control} name={'surname'} render={({field}) => {
+                    return (
+                      <FormItem>
+                        <FormLabel>surname</FormLabel>
+                        <FormControl>
+                          <Input placeholder={'Ivanov'} {...field} />
+                        </FormControl>
+                        <FormMessage/>
+                      </FormItem>
+                    );
+                  }}/>
+                  <FormField control={registerForm.control} name={'firstname'} render={({field}) => {
+                    return (
+                      <FormItem>
+                        <FormLabel>firstname</FormLabel>
+                        <FormControl>
+                          <Input placeholder={'Ivan'} {...field} />
+                        </FormControl>
+                        <FormMessage/>
+                      </FormItem>
+                    );
+                  }}/>
+                  <FormField control={registerForm.control} name={'middlename'} render={({field}) => {
+                    return (
+                      <FormItem>
+                        <FormLabel>middlename</FormLabel>
+                        <FormControl>
+                          <Input placeholder={'Ivanovich'} {...field} />
+                        </FormControl>
+                        <FormMessage/>
+                      </FormItem>
+                    );
+                  }}/>
+                  <div className={'flex justify-center flex-row space-x-4'}>
+                    <Button variant={'outline'} className={'w-48'}
+                            onClick={registerForm.handleSubmit(onRegisterSubmit)}>Register</Button>
+                  </div>
+                </form>
+              </Form>
+            </CardContent>
+          </Card>
 
-              </CardContent>
-
-            </Card>
-          </TabsContent>
-          <TabsContent value={'register'}>
-            <Card>
-              <CardHeader>
-                Register
-              </CardHeader>
-              <CardContent>
-                <Form {...registerForm}>
-                  <form onSubmit={registerForm.handleSubmit(onRegisterSubmit)} className={'space-y-6'}>
-                    {registerError && <Card>
-                        <CardHeader className={'font-bold'}>
-                            Error!
-                        </CardHeader>
-                        <CardContent className={'text-destructive-foreground'}>
-                          {Object.keys(registerError).map((key) => {
-                            return (
-                              <div key={key}>
-                                <span className={'font-bold'}>{key}</span>
-                                <ul>
-                                  {Object.entries(registerError).map(([k, v]) => {
-                                    return (
-                                      <li key={k}>{v}</li>
-                                    );
-                                  })}
-                                </ul>
-                              </div>
-                            );
-                          })}
-                        </CardContent>
-                    </Card>}
-                    <FormField control={registerForm.control} name={'email'} render={({field}) => {
-                      return (
-                        <FormItem>
-                          <FormLabel>email</FormLabel>
-                          <FormControl>
-                            <Input type={'email'} placeholder={'example@utmn.ru'} {...field} />
-                          </FormControl>
-                          <FormDescription>
-                            your email address, lowercase
-                          </FormDescription>
-                          <FormMessage/>
-                        </FormItem>
-                      );
-                    }}/>
-                    <FormField control={registerForm.control} name={'name'} render={({field}) => {
-                      return (
-                        <FormItem>
-                          <FormLabel>username</FormLabel>
-                          <FormControl>
-                            <Input placeholder={'username'} {...field} />
-                          </FormControl>
-                          <FormDescription>
-                            your username, must be unique
-                          </FormDescription>
-                          <FormMessage/>
-                        </FormItem>
-                      );
-                    }}/>
-                    <FormField control={registerForm.control} name={'password'} render={({field}) => {
-                      return (
-                        <FormItem>
-                          <FormLabel>password</FormLabel>
-                          <FormControl>
-                            <Input type={'password'} placeholder={'******'} {...field} />
-                          </FormControl>
-                          <FormDescription>
-                            password must be at least 6 characters
-                          </FormDescription>
-                          <FormMessage/>
-                        </FormItem>
-                      );
-                    }}/>
-                    <FormField control={registerForm.control} name={'password_confirmation'} render={({field}) => {
-                      return (
-                        <FormItem>
-                          <FormLabel>confirm password</FormLabel>
-                          <FormControl>
-                            <Input type={'password'} placeholder={'******'} {...field} />
-                          </FormControl>
-                          <FormDescription>
-                            confirm your password
-                          </FormDescription>
-                          <FormMessage/>
-                        </FormItem>
-                      );
-                    }}/>
-                    <FormField control={registerForm.control} name={'surname'} render={({field}) => {
-                      return (
-                        <FormItem>
-                          <FormLabel>surname</FormLabel>
-                          <FormControl>
-                            <Input placeholder={'Ivanov'} {...field} />
-                          </FormControl>
-                          <FormMessage/>
-                        </FormItem>
-                      );
-                    }}/>
-                    <FormField control={registerForm.control} name={'firstname'} render={({field}) => {
-                      return (
-                        <FormItem>
-                          <FormLabel>firstname</FormLabel>
-                          <FormControl>
-                            <Input placeholder={'Ivan'} {...field} />
-                          </FormControl>
-                          <FormMessage/>
-                        </FormItem>
-                      );
-                    }}/>
-                    <FormField control={registerForm.control} name={'middlename'} render={({field}) => {
-                      return (
-                        <FormItem>
-                          <FormLabel>middlename</FormLabel>
-                          <FormControl>
-                            <Input placeholder={'Ivanovich'} {...field} />
-                          </FormControl>
-                          <FormMessage/>
-                        </FormItem>
-                      );
-                    }}/>
-                    <div className={'flex justify-center flex-row space-x-4'}>
-                      <Button variant={'outline'} className={'w-48'}
-                              onClick={registerForm.handleSubmit(onRegisterSubmit)}>Register</Button>
-                    </div>
-                  </form>
-                </Form>
-              </CardContent>
-            </Card>
-
-          </TabsContent>
-        </Tabs>
-
-
-      </div>
-    </>
-
+        </TabsContent>
+      </Tabs>
+    </div>
   )
 }
 

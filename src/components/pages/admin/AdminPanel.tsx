@@ -1,4 +1,3 @@
-import Header from "@/components/widgets/header/Header.tsx";
 import {useSanctum} from "react-sanctum";
 import {useNavigate} from "react-router";
 import {useEffect} from "react";
@@ -28,7 +27,6 @@ function AdminPanel() {
 
   return (
     <>
-      <Header/>
       <div className={'flex'}>
 
       </div>
