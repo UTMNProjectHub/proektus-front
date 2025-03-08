@@ -45,7 +45,7 @@ function UserHolder() {
     )
   }
 
-  const fullName = user.data.middlename ? `${user.data.surname} ${user.data.firstname.slice(0, 1)} ${user.data.middlename.slice(0, 1)}.` : `${user.data.surname} ${user.data.firstname.slice(0, 1)}.`;
+  const fullName = user.data.middlename ? `${user.data.surname} ${user.data.firstname.slice(0, 1)}. ${user.data.middlename.slice(0, 1)}.` : `${user.data.surname} ${user.data.firstname.slice(0, 1)}.`;
 
 
   return (

@@ -49,7 +49,10 @@ export const userColumns: ColumnDef<User>[] = [
               Actions
             </DropdownMenuLabel>
             <DropdownMenuItem>
-              View additional user details
+              View
+            </DropdownMenuItem>
+            <DropdownMenuItem>
+              Edit
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

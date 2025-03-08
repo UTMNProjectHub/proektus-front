@@ -27,7 +27,7 @@ function AdminPanel() {
 
     if (authenticated === true && user.data.roles.includes('admin')) {
       getAllUsers().then((response) => {
-        console.log(response); setUsers(response);
+        setUsers(response);
       }).catch((error) => {
         toast.error(error.message);
       })
@@ -45,7 +45,7 @@ function AdminPanel() {
   return (
     <>
       <Toaster/>
-      <div className={'flex'}>
+      <div className={'flex my-4'}>
         <div className={'container w-2/3 mx-auto'}>
           <DataTable columns={userColumns} data={users}/>
         </div>
