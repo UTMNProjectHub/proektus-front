@@ -1,4 +1,3 @@
-import Header from "@/components/widgets/header/Header.tsx";
 import {useSanctum} from "react-sanctum";
 import {useEffect} from "react";
 import {useNavigate} from "react-router";
@@ -23,7 +22,6 @@ function Profile() {
 
   return (
     <>
-      <Header/>
       {user && <div>{JSON.stringify(user)}</div>}
     </>
   )
