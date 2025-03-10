@@ -1,8 +1,8 @@
-import Header from "@/components/widgets/header/Header.tsx";
-
 function Dashboard() {
   return (
-    <Header/>
+    <div>
+      dashboard
+    </div>
   )
 }
 
