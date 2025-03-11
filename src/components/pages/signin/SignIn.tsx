@@ -20,6 +20,8 @@ import {useState} from "react";
 import axios from "axios";
 import GenericLoader from "@/components/ui/genericLoader.tsx";
 import {Avatar, AvatarFallback} from "@/components/ui/avatar.tsx";
+import {passwordSchema} from "@/utils.ts";
+import {PasswordInput} from "@/components/ui/password-input.tsx";
 
 const loginSchema = z.object({
   email: z.string().email(),
@@ -29,8 +31,8 @@ const loginSchema = z.object({
 
 const registerSchema = z.object({
   email: z.string().email("Input the correct email").regex(/[a-z0-9]+@(utmn|study\.utmn)\.ru$/, "Email should be in utmn.ru or study.utmn.ru"), //Да простит меня лид за такой поступок, ну в общем теперь рега по домену
-  password: z.string().min(6),
-  password_confirmation: z.string().min(6),
+  password: passwordSchema,
+  password_confirmation: passwordSchema,
   name: z.string().min(3),
   firstname: z.string(),
   surname: z.string(),
@@ -164,7 +166,7 @@ function NewSignIn() {
                       <FormItem>
                         <FormLabel>password</FormLabel>
                         <FormControl>
-                          <Input type={'password'} placeholder={'******'} {...field} />
+                          <PasswordInput placeholder={'*******'} {...field} />
                         </FormControl>
                         <FormDescription>
                           password must be at least 6 characters
