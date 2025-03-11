@@ -28,7 +28,7 @@ const loginSchema = z.object({
 });
 
 const registerSchema = z.object({
-  email: z.string().email(),
+  email: z.string().email("Input the correct email").regex(/[a-z0-9]+@(utmn|study\.utmn)\.ru$/, "Email should be in utmn.ru or study.utmn.ru"), //Да простит меня лид за такой поступок, ну в общем теперь рега по домену
   password: z.string().min(6),
   password_confirmation: z.string().min(6),
   name: z.string().min(3),
