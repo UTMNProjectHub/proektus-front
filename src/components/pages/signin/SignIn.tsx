@@ -169,7 +169,7 @@ function NewSignIn() {
                           <PasswordInput placeholder={'*******'} {...field} />
                         </FormControl>
                         <FormDescription>
-                          password must be at least 6 characters
+                          password must be at least 8 characters
                         </FormDescription>
                         <FormMessage/>
                       </FormItem>
@@ -264,7 +264,7 @@ function NewSignIn() {
                           <Input type={'password'} placeholder={'******'} {...field} />
                         </FormControl>
                         <FormDescription>
-                          password must be at least 6 characters
+                          password must be at least 8 characters
                         </FormDescription>
                         <FormMessage/>
                       </FormItem>
