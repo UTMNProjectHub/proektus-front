@@ -2,7 +2,7 @@ import {useSanctum} from "react-sanctum";
 import {useEffect} from "react";
 import {useNavigate} from "react-router";
 import GenericLoader from "@/components/ui/genericLoader.tsx";
-
+//авааа
 function Profile() {
   const {user, authenticated} = useSanctum();
   const navigate = useNavigate();

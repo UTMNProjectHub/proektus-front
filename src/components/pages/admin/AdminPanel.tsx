@@ -6,7 +6,7 @@ import {getAllUsers} from "@/components/pages/admin/api/user.ts";
 import {User} from "@/components/pages/admin/api/type.ts";
 import DataTable from "@/components/pages/admin/ui/data-table.tsx";
 import {userColumns} from "@/components/pages/admin/ui/user/columns.tsx";
-import {toast} from 'sonner';
+import {toast} from "sonner"
 import {Toaster} from '@/components/ui/sonner.tsx';
 
 function AdminPanel() {

@@ -20,17 +20,21 @@ import {useState} from "react";
 import axios from "axios";
 import GenericLoader from "@/components/ui/genericLoader.tsx";
 import {Avatar, AvatarFallback} from "@/components/ui/avatar.tsx";
+import {passwordSchema} from "@/utils.ts";
+import {PasswordInput} from "@/components/ui/password-input.tsx";
 
 const loginSchema = z.object({
   email: z.string().email(),
-  password: z.string().min(6),
+  password: z.string().min(8),
   remember: z.boolean(),
 });
 
 const registerSchema = z.object({
-  email: z.string().email(),
-  password: z.string().min(6),
-  password_confirmation: z.string().min(6),
+  email: z.string()
+  .email("Input the correct email")
+  .regex(/^[a-z0-9]+@utmn\.ru$/, "Email должен быть в домене utmn.ru"), //Да простит меня лид за такой поступок, ну в общем теперь рега по домену
+  password: passwordSchema,
+  password_confirmation: passwordSchema,
   name: z.string().min(3),
   firstname: z.string(),
   surname: z.string(),
@@ -164,10 +168,10 @@ function NewSignIn() {
                       <FormItem>
                         <FormLabel>password</FormLabel>
                         <FormControl>
-                          <Input type={'password'} placeholder={'******'} {...field} />
+                          <PasswordInput placeholder={'*******'} {...field} />
                         </FormControl>
                         <FormDescription>
-                          password must be at least 6 characters
+                          password must be at least 8 characters, with at least one special symbol and uppercase letter
                         </FormDescription>
                         <FormMessage/>
                       </FormItem>
@@ -262,7 +266,7 @@ function NewSignIn() {
                           <Input type={'password'} placeholder={'******'} {...field} />
                         </FormControl>
                         <FormDescription>
-                          password must be at least 6 characters
+                          password must be at least 8 characters, with at least one special symbol and uppercase letter
                         </FormDescription>
                         <FormMessage/>
                       </FormItem>

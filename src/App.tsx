@@ -7,6 +7,7 @@ import Profile from "@/components/pages/profile/Profile.tsx";
 import ErrorPage from "@/components/pages/error/ErrorPage.tsx";
 import Header from "@/components/widgets/header/Header.tsx";
 import Footer from "@/components/widgets/footer/Footer.tsx";
+import ProfileEdit from "@/components/pages/profile-edit/ProfileEdit.tsx";
 
 
 function App() {
@@ -22,6 +23,7 @@ function App() {
         <Route path='*' element={<ErrorPage error={404} message={'Page not found'}/>}/>
         <Route path='401' element={<ErrorPage error={401} message={'Unauthorized'}/>}/>
         <Route path='500' element={<ErrorPage error={500} message={'Server error. Contant an admin.'}/>}/>
+        <Route path='/profile/edit' element={<ProfileEdit/>}/>
       </Routes>
       <Footer/>
     </>
