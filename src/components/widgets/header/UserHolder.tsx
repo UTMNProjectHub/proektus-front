@@ -67,7 +67,13 @@ function UserHolder() {
               Profile
             </DropdownMenuItem>
           </Link>
+          <Link to={'/profile/edit'}>
+            <DropdownMenuItem>
+              Edit profile
+            </DropdownMenuItem>
+          </Link>
         </DropdownMenuGroup>
+        <DropdownMenuSeparator/>
         <DropdownMenuGroup>
           <DropdownMenuItem>
             <button className={'w-full text-left'} onClick={()=>{signOut().then(()=>navigate('/'))}}>Logout</button> {/* could be completely useless refresh, needs checking */}

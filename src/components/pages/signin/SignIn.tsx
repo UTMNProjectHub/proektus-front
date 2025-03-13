@@ -25,12 +25,14 @@ import {PasswordInput} from "@/components/ui/password-input.tsx";
 
 const loginSchema = z.object({
   email: z.string().email(),
-  password: z.string().min(6),
+  password: z.string().min(8),
   remember: z.boolean(),
 });
 
 const registerSchema = z.object({
-  email: z.string().email("Input the correct email").regex(/[a-z0-9]+@(utmn|study\.utmn)\.ru$/, "Email should be in utmn.ru or study.utmn.ru"), //Да простит меня лид за такой поступок, ну в общем теперь рега по домену
+  email: z.string()
+  .email("Input the correct email")
+  .regex(/^[a-z0-9]+@utmn\.ru$/, "Email должен быть в домене utmn.ru"), //Да простит меня лид за такой поступок, ну в общем теперь рега по домену
   password: passwordSchema,
   password_confirmation: passwordSchema,
   name: z.string().min(3),
@@ -169,7 +171,7 @@ function NewSignIn() {
                           <PasswordInput placeholder={'*******'} {...field} />
                         </FormControl>
                         <FormDescription>
-                          password must be at least 8 characters
+                          password must be at least 8 characters, with at least one special symbol and uppercase letter
                         </FormDescription>
                         <FormMessage/>
                       </FormItem>
@@ -264,7 +266,7 @@ function NewSignIn() {
                           <Input type={'password'} placeholder={'******'} {...field} />
                         </FormControl>
                         <FormDescription>
-                          password must be at least 8 characters
+                          password must be at least 8 characters, with at least one special symbol and uppercase letter
                         </FormDescription>
                         <FormMessage/>
                       </FormItem>

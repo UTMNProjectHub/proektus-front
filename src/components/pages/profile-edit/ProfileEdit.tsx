@@ -15,23 +15,28 @@ import { passwordSchema } from "@/utils.ts";
 import { PasswordInput } from "@/components/ui/password-input.tsx";
 import { useSanctum } from "react-sanctum";
 import {useEffect} from "react";
+import GenericLoader from "@/components/ui/genericLoader";
 
 const profileSchema = z.object({
-    fullName: z.string().min(3, "ФИО должно содержать минимум 3 символа"),
+    surname: z.string().min(1, 'Поле фамилии не может быть пустым'),
+    firstname: z.string().min(1, "Поле фамилии не может быть пустым"),
+    middlename: z.string(),
     username: z.string().min(2, "Юзернейм должен содержать минимум 2 символа"),
     email: z.string()
         .email("Введите корректный email")
-        .regex(/[a-z0-9]+@(utmn|study\.utmn)\.ru$/, "Email должен быть в домене utmn.ru или study.utmn.ru"),
+        .regex(/^[a-z0-9]+@utmn\.ru$/, "Email должен быть в домене utmn.ru"),
     OldPassword: passwordSchema,
     password: passwordSchema,
 });
 
 const ProfileEdit = () => {
-    const { user } = useSanctum();
+    const { user, authenticated } = useSanctum();
     const form = useForm<z.infer<typeof profileSchema>>({
         resolver: zodResolver(profileSchema),
         defaultValues: {
-            fullName: "",
+            surname: "",
+            firstname: "",
+            middlename: "",
             username: "",
             email: "",
             OldPassword: "",
@@ -42,7 +47,9 @@ const ProfileEdit = () => {
     useEffect(() => {
         if (user?.data) {
             form.reset({
-                fullName: `${user.data.surname || ""} ${user.data.firstname || ""} ${user.data.middlename || ""} `.trim(),
+                surname: user.data.surname,
+                firstname: user.data.firstname,
+                middlename: user.data.middlename || "",
                 username: user.data.name || "",
                 email: user.data.email || "",
             });
@@ -54,19 +61,54 @@ const ProfileEdit = () => {
         console.log("Форма отправлена:", data);
     };
 
+    if (authenticated === null) {
+        return (
+          <GenericLoader/>
+        )
+      }
+
     return (
-        <div className="max-w-md mx-auto p-6 bg-white rounded-lg shadow-md">
+        <div className="max-w-md mx-auto my-2 p-6 bg-white rounded-lg shadow-md">
             <h2 className="text-xl font-semibold mb-6">Редактирование профиля</h2>
             <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                     <FormField
                         control={form.control}
-                        name="fullName"
+                        name="surname"
                         render={({ field }) => (
                             <FormItem>
-                                <FormLabel>ФИО</FormLabel>
+                                <FormLabel>Фамилия</FormLabel>
                                 <FormControl>
-                                    <Input placeholder="Введите ФИО" {...field} />
+                                    <Input placeholder="Иванов" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+
+                    <FormField
+                        control={form.control}
+                        name="firstname"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Имя</FormLabel>
+                                <FormControl>
+                                    <Input placeholder="Иван" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+
+
+                    <FormField
+                        control={form.control}
+                        name="middlename"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Отчество</FormLabel>
+                                <FormControl>
+                                    <Input placeholder="Иванович" {...field} />
                                 </FormControl>
                                 <FormMessage />
                             </FormItem>
@@ -78,7 +120,7 @@ const ProfileEdit = () => {
                         name="username"
                         render={({ field }) => (
                             <FormItem>
-                                <FormLabel>Username</FormLabel>
+                                <FormLabel>Никнейм</FormLabel>
                                 <FormControl>
                                     <Input type="text" placeholder="Введите новый юзернейм" {...field} />
                                 </FormControl>
@@ -125,7 +167,7 @@ const ProfileEdit = () => {
                                     <PasswordInput placeholder="Введите новый пароль" {...field} />
                                 </FormControl>
                                 <FormDescription>
-                                    Пароль должен содержать минимум 8 символов
+                                    Пароль должен содержать минимум 8 символов, хотя бы один специальный символ и заглавную букву
                                 </FormDescription>
                                 <FormMessage />
                             </FormItem>
