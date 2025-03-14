@@ -51,10 +51,10 @@ function UserHolder() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger className={'flex flex-row gap-2 items-center'}>
-        <Avatar>
+        <Avatar className="border-2 border-[#00aeef]">
           <AvatarFallback>{user.data.firstname.slice(0, 1)}</AvatarFallback>
         </Avatar>
-        <span>{fullName} (@{user.data.name})</span>
+        <span className="text-white font-light font-montserrat">{fullName} (@{user.data.name})</span>
       </DropdownMenuTrigger>
       <DropdownMenuContent>
         <DropdownMenuLabel>

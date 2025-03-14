@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
 @import "tailwindcss";
 
 @plugin "tailwindcss-animate";
@@ -117,6 +117,8 @@
 
 @theme {
   --font-inter: Inter, 'serif';
+  --font-alssector: ALSSector, sans-serif;
+  --font-montserrat: Montserrat, 'serif';
 }
 
 @layer base {
@@ -126,4 +128,9 @@
   body {
     @apply bg-background text-foreground;
   }
+}
+
+header {
+  background-image: linear-gradient(-170deg, #00aeef 0%, #00aeef 38%, #006fc4 100%);
+  background-color: #00acec;
 }
