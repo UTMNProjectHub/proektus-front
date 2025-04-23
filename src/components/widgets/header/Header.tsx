@@ -1,6 +1,8 @@
 import {Link} from "react-router";
 import UserHolder from "@/components/widgets/header/UserHolder.tsx";
 import {memo, ReactNode} from "react";
+import { NavigationMenu, NavigationMenuList } from "@/components/ui/navigation-menu";
+import ProjectNavigation from "./ProjectNavigation";
 
 
 interface HeaderProps {
@@ -25,6 +27,11 @@ function Header({children}: HeaderProps) {
           </div>
         </Link>
       </div>
+      <NavigationMenu>
+        <NavigationMenuList>
+          <ProjectNavigation/>
+        </NavigationMenuList>
+      </NavigationMenu>
       {children}
       <UserHolder/>
     </nav>
