@@ -1,20 +1,21 @@
+import GenericLoader from "@/components/ui/genericLoader";
 import {
   Pagination,
   PaginationContent,
   PaginationItem,
   PaginationLink,
   PaginationNext,
-  PaginationPrevious,
 } from "@/components/ui/pagination";
-import { useEffect, useState } from "react";
+import ProjectCard from "@/components/widgets/projects/ProjectCard";
+import { IProjectsResponse } from "@/components/widgets/projects/types/ProjectTypes";
 import axios from "axios";
-import { Card } from "@/components/ui/card";
-import { IProjectsResponse } from "../../widgets/projects/types/ProjectTypes";
-import ProjectCard from "../../widgets/projects/ProjectCard";
-import { useNavigate, useParams } from "react-router";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router";
+import { useSanctum } from "react-sanctum";
 
 function Dashboard() {
   const navigate = useNavigate();
+  const { user, authenticated } = useSanctum();
 
   const [pageData, setPageData] = useState({} as IProjectsResponse);
   const [pageSize, setPageSize] = useState(10);
@@ -31,6 +32,13 @@ function Dashboard() {
       navigate(`?page=${validPage}`);
     }
   };
+
+  useEffect(() => {
+    if (authenticated === false) {
+      navigate("/401");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [authenticated]);
 
   useEffect(() => {
     if (pageParam) {
@@ -51,8 +59,12 @@ function Dashboard() {
   }, [location.search, pageParam, pageData.last_page]);
 
   useEffect(() => {
+    if (!user) {
+      return;
+    }
+
     axios
-      .get(`/api/projects?page=${page}&per_page=${pageSize}`)
+      .get(`/api/projects?user=${user.id}&?page=${page}&per_page=${pageSize}`)
       .then((response) => {
         setPageData(response.data);
 
@@ -66,6 +78,10 @@ function Dashboard() {
         console.error("Error fetching projects:", error);
       });
   }, [page]);
+
+  if (authenticated === null) {
+    return <GenericLoader />;
+  }
 
   return (
     <div className="container flex flex-col mx-auto pt-8 pb-2">
