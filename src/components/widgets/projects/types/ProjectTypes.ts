@@ -23,10 +23,67 @@ export interface IProject {
     created_at: string
     updated_at: string
     deleted_at: any
+    users?: IProjectUser[]
+    tags?: ITag[]
+    urls?: IProjectUrl[]
+    links?: IProjectLink[]
 }
   
-interface ILink {
+export interface ILink {
     url?: string
     label: string
     active: boolean
 }
+
+export interface ITag {
+    id: number
+    name: string
+    created_at: string
+    updated_at: string
+    pivot: ITagPivot
+  }
+  
+  export interface ITagPivot {
+    project_id: number
+    tag_id: number
+  }
+  
+  export interface IProjectUrl {
+    id: number
+    project_id: number
+    repository_url: string
+    created_at: string
+    updated_at: string
+  }
+
+  export interface IProjectLink {
+    id: number
+    project_id: number
+    url: string
+    type: string
+    created_at: string
+    updated_at: string
+  }
+
+  export interface IProjectUser {
+    id: number
+    name: string
+    email: string
+    email_verified_at: string
+    created_at: string
+    updated_at: string
+    firstname: string
+    surname: string
+    middlename: string
+    avatar?: string
+    deleted_at: any
+    pivot: IUserPivot
+  }
+
+  export interface IUserPivot {
+    project_id: number
+    user_id: number
+    role: string
+    created_at: string
+    updated_at: string
+  }

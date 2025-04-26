@@ -69,7 +69,7 @@ function Dashboard() {
 
   return (
     <div className="container flex flex-col mx-auto pt-8 pb-2">
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 mx-10 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-4">
         {pageData.data &&
           pageData.data.map((item, index) => (
             <ProjectCard key={`project_${index}`} project={item} />
@@ -80,7 +80,7 @@ function Dashboard() {
         <PaginationContent>
           {pageData.current_page > 1 && (
             <PaginationItem>
-              <PaginationLink onClick={() => handlePageChange(page - 1)} />
+              <PaginationPrevious onClick={() => handlePageChange(page - 1)} />
             </PaginationItem>
           )}
 
