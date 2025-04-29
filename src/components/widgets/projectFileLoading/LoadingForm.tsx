@@ -33,7 +33,7 @@ const schema = z.object({
     })
 });
 
-function LoadingForm() {
+function LoadingForm({projectId, setOpen}: { projectId: number, setOpen: (open: boolean) => void }) {
   const form = useForm<z.infer<typeof schema>>({
     resolver: zodResolver(schema),
     defaultValues: {
@@ -48,19 +48,21 @@ function LoadingForm() {
       if (data.file) {
         formData.append('file', data.file);
       }
+
+      formData.append('project_id', projectId.toString());
       
       axios.post('/api/file/upload', formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }
-      }).then(res => {console.log(res)});
+      }).then(res => {console.log(res)}).finally(() => {setOpen(false)});
     } catch (e) {
       console.log(e);
     }
   };
 
   return (
-    <Card className={'max-w-md px-4 py-2'}>
+    <>
       <Form {...form}>
         <form className={'space-y-1'} onSubmit={form.handleSubmit(onSubmit)}>
           <FormField name={'file'} control={form.control} render={({field: {onChange, value, ...fieldProps}}) => (
@@ -83,7 +85,7 @@ function LoadingForm() {
           <Button variant={'outline'} type={'submit'}>Load</Button>
         </form>
       </Form>
-    </Card>
+    </>
   )
 }
 

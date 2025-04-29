@@ -1,15 +1,22 @@
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs.tsx";
 import UserBadge from "@/components/ui/userbadge";
-import { IProject } from "@/components/widgets/projects/types/ProjectTypes";
+import { IProject, IProjectFile } from "@/components/widgets/projects/types/ProjectTypes";
 import axios from "axios";
 import { BookOpen } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router";
+import { columns } from "./file-columns-def.tsx"
+import { DataTable } from "@/components/ui/data-table.tsx";
+import { Button } from "@/components/ui/button.tsx";
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog.tsx";
+import LoadingForm from "@/components/widgets/projectFileLoading/LoadingForm.tsx";
 
 function ProjectPage() {
     const param = useParams();
     const [project, setProject] = useState({} as IProject);
+    const [projectFiles, setProjectFiles] = useState([] as IProjectFile[]);
+    const [openFileDialog, setOpenFileDialog] = useState(false);
 
     useEffect(() => {
         axios.get(`/api/projects/${param.id}`).then((response) => {
@@ -17,9 +24,15 @@ function ProjectPage() {
         }).catch((error) => {
             console.error("Error fetching project:", error);
         });
-    }, [])
 
-    console.log("Project fetched:", project);
+        axios.get(`/api/projects/${param.id}/files`).then((response) => {
+            setProjectFiles(response.data);
+        }).catch((error) => {
+            console.error("Error fetching project files:", error);
+        });
+    }, []);
+
+    console.log(projectFiles)
 
     return (
         <div className="flex flex-col mx-10 py-6 justify-center">
@@ -47,8 +60,8 @@ function ProjectPage() {
                             {project.logo && (<img src={`${import.meta.env.VITE_APP_URL}/storage/${project.logo}`} alt="Logo preview" className="h-36 w-36 object-cover rounded-md outline-1 outline-gray-200" />)}
                         </div>
                         <hr />
-                        <div className="flex py-2 px-1">
-                            <div className="container px-4">
+                        <div className="flex py-2 px-4">
+                            <div className="container px-4 py-2">
                                 <div className="inline-flex gap-1 items-center text-xl font-medium"><BookOpen /><span>README</span></div>
                                 <div>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas porttitor egestas finibus. Maecenas pulvinar sapien felis, at convallis ipsum vestibulum efficitur. Nullam a ex hendrerit, auctor nulla sit amet, fringilla tortor. Donec euismod volutpat aliquet. Curabitur fermentum, neque sed molestie porta, arcu leo finibus est, ultricies semper orci libero sed tellus. Etiam rhoncus augue eu mi gravida, sed malesuada orci congue. Morbi a tempus felis. Nulla semper vehicula tellus, nec sollicitudin libero iaculis eget. Vivamus faucibus ex sapien, non condimentum ligula aliquam id. In non lorem sed mi molestie molestie et nec massa. Sed a justo nec magna porta semper nec suscipit tortor.
 
@@ -73,7 +86,19 @@ function ProjectPage() {
 
                     </TabsContent>
                     <TabsContent value="files">
-
+                        <div className="flex flex-col space-y-4 justify-between px-6 py-4">
+                            <div className="flex flex-row">
+                                <Dialog open={openFileDialog} onOpenChange={setOpenFileDialog}>
+                                    <DialogTrigger asChild>
+                                        <Button>Загрузить файл</Button>
+                                    </DialogTrigger>
+                                    <DialogContent>
+                                        <LoadingForm projectId={project.id} setOpen={setOpenFileDialog} />
+                                    </DialogContent>
+                                </Dialog>
+                            </div>
+                            <DataTable columns={columns} data={projectFiles} />
+                        </div>
                     </TabsContent>
 
 
