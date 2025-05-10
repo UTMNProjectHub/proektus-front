@@ -28,7 +28,7 @@ export interface IProject {
     users?: IProjectUser[]
     tags?: ITag[]
     urls?: IProjectUrl[]
-    links?: IProjectLink[]
+    // links?: IProjectLink[]
 }
   
 export interface ILink {
@@ -58,14 +58,14 @@ export interface IProjectUrl {
   updated_at: string
 }
 
-export interface IProjectLink {
-  id: number
-  project_id: number
-  url: string
-  type: string
-  created_at: string
-  updated_at: string
-}
+// export interface IProjectLink {
+//   id: number
+//   project_id: number
+//   url: string
+//   type: string
+//   created_at: string
+//   updated_at: string
+// }
 
 export interface IProjectUser extends IUser {
   id: number

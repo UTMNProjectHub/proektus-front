@@ -1,22 +1,30 @@
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs.tsx";
 import UserBadge from "@/components/ui/userbadge";
-import { IProject, IProjectFile } from "@/components/widgets/projects/types/ProjectTypes";
+import { IProject, IProjectFile, IProjectUser } from "@/components/widgets/projects/types/ProjectTypes";
 import axios from "axios";
-import { BookOpen } from "lucide-react";
+import { BookOpen, GitBranch, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router";
-import { columns } from "./file-columns-def.tsx"
+import { columns } from "../file-columns-def.tsx"
 import { DataTable } from "@/components/ui/data-table.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog.tsx";
 import LoadingForm from "@/components/widgets/projectFileLoading/LoadingForm.tsx";
+import { Label } from "@/components/ui/label.tsx";
+import { UserAutocomplete } from "./user-autocomplete.tsx";
+import { IUser } from "@/models/user/types.ts";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar.tsx";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select.tsx";
+import ProjectEdit from "./project-edit.tsx";
 
 function ProjectPage() {
     const param = useParams();
     const [project, setProject] = useState({} as IProject);
-    const [projectFiles, setProjectFiles] = useState([] as IProjectFile[]);
+    const [projectFiles, setProjectFiles] = useState<IProjectFile[]>([]);
     const [openFileDialog, setOpenFileDialog] = useState(false);
+    const [selectedUsers, setSelectedUsers] = useState<IUser[]>([]);
+    const [projectUsers, setProjectUsers] = useState<IProjectUser[]>([]);
 
     useEffect(() => {
         axios.get(`/api/projects/${param.id}`).then((response) => {
@@ -26,13 +34,21 @@ function ProjectPage() {
         });
 
         axios.get(`/api/projects/${param.id}/files`).then((response) => {
-            setProjectFiles(response.data);
+            setProjectFiles(response.data.files);
         }).catch((error) => {
             console.error("Error fetching project files:", error);
         });
     }, []);
 
-    console.log(projectFiles)
+    useEffect(() => {
+        axios.get(`/api/projects/${param.id}/users`).then((response) => {
+            setProjectUsers(response.data.users);
+        }).catch((error) => {
+            console.error("Error fetching project users:", error);
+        });
+    }, [selectedUsers]);
+
+    console.log(selectedUsers)
 
     return (
         <div className="flex flex-col mx-10 py-6 justify-center">
@@ -56,6 +72,12 @@ function ProjectPage() {
                                 <div className="flex space-x-1">{project.tags?.map((tag, index) => (
                                     <Badge key={index} variant={"outline"}>{tag.name}</Badge>
                                 ))}</div>
+                                <div className="flex space-x-1">{
+                                    project.urls?.map((link, index) => (
+                                        <Badge key={`repo-${index}`} className="bg-white outline-1"><GitBranch className="invert" /><a href={link.repository_url} target="_blank" className="text-blue-500 hover:underline">Репозиторий</a></Badge>
+                                    ))
+                                }</div>
+                                <div className="flex space-x-1"></div>
                             </div>
                             {project.logo && (<img src={`${import.meta.env.VITE_APP_URL}/storage/${project.logo}`} alt="Logo preview" className="h-36 w-36 object-cover rounded-md outline-1 outline-gray-200" />)}
                         </div>
@@ -99,6 +121,9 @@ function ProjectPage() {
                             </div>
                             <DataTable columns={columns} data={projectFiles} />
                         </div>
+                    </TabsContent>
+                    <TabsContent value="settings">
+                        <ProjectEdit project={project} projectUsers={projectUsers} setProjectUsers={setProjectUsers} selectedUsers={selectedUsers} setSelectedUsers={setSelectedUsers} />
                     </TabsContent>
 
 

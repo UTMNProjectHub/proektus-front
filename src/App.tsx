@@ -9,7 +9,7 @@ import Header from "@/components/widgets/header/Header.tsx";
 import Footer from "@/components/widgets/footer/Footer.tsx";
 import LoadingForm from "@/components/widgets/projectFileLoading/LoadingForm.tsx";
 import ProjectCreate from "./components/pages/project/create/ProjectCreate";
-import ProjectPage from "./components/pages/project/ProjectView";
+import ProjectPage from "./components/pages/project/project-view/ProjectView";
 
 function App() {
   return (
@@ -41,7 +41,6 @@ function App() {
             />
           }
         />
-        <Route path={"project/file"} element={<LoadingForm />} />
       </Routes>
       <Footer />
     </>

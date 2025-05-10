@@ -1,8 +1,6 @@
 import { ColumnDef, Row } from '@tanstack/react-table';
 import { MoreHorizontal } from 'lucide-react';
 
-import { useNavigate } from 'react-router';
-
 import { Button } from "@/components/ui/button"
 import {
     DropdownMenu,
@@ -18,6 +16,43 @@ import { formatDateTime } from '@/shared/convertDateLocal';
 import axios from 'axios';
 import UserBadge from '@/components/ui/userbadge';
 
+
+function deleteFile(file: IProjectFile) {
+    axios.delete(`/api/file/delete`, {data: {
+        file_id: file.id
+    }}).then((response) => {
+        console.log("File deleted successfully", response.data);
+    }).catch((error) => {
+        console.error("Error deleting file:", error);
+    });
+
+    
+}
+
+function downloadFile(file: IProjectFile) {
+    axios.get(`/api/file/download/${file.id}`, {
+        responseType: 'blob',
+    }).then((response) => {
+        const url = window.URL.createObjectURL(new Blob([response.data]));
+        const link = document.createElement('a');
+        link.href = url;
+
+        // Set the file name (you can customize this based on the file metadata)
+        link.download = file.original_filename || 'downloaded_file';
+
+        // Trigger the download
+        document.body.appendChild(link);
+        link.click();
+
+        // Clean up
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
+
+        console.log('File downloaded successfully');
+    }).catch((error) => {
+        console.error("Error downloading file:", error);
+    });
+}
 
 export const columns: ColumnDef<IProjectFile>[] = [
     {
@@ -64,12 +99,12 @@ export const columns: ColumnDef<IProjectFile>[] = [
                             Действия
                         </DropdownMenuLabel>
                         <DropdownMenuItem>
-                            <a href={`${import.meta.env.VITE_APP_URL}/storage/${file.s3_key}`} target="_blank" rel="noopener noreferrer">
+                            <a onClick={(e) => {downloadFile(file); e.preventDefault;}} target="_blank" rel="noopener noreferrer">
                                 Скачать
                             </a>
                         </DropdownMenuItem>
                         <DropdownMenuItem>
-                            <a onClick={(e) => {e.preventDefault, deleteFile(file)}} target="_blank" rel="noopener noreferrer">
+                            <a onClick={(e) => {deleteFile(file); e.preventDefault();}} target="_blank" rel="noopener noreferrer">
                                 Удалить
                             </a>
                         </DropdownMenuItem>
