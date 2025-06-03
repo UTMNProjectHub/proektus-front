@@ -67,7 +67,7 @@ function LoadingForm({projectId, setOpen}: { projectId: number, setOpen: (open: 
         <form className={'space-y-1'} onSubmit={form.handleSubmit(onSubmit)}>
           <FormField name={'file'} control={form.control} render={({field: {onChange, value, ...fieldProps}}) => (
             <FormItem>
-              <FormLabel>Choose file to load</FormLabel>
+              <FormLabel>Выберите файл для загрузки</FormLabel>
               <FormControl>
                 <Input 
                   type={'file'} 
@@ -77,12 +77,12 @@ function LoadingForm({projectId, setOpen}: { projectId: number, setOpen: (open: 
                 />
               </FormControl>
               <FormDescription>
-                Only files with the following extensions are allowed: .doc, .docx, .pdf, .xls, .xlsx, .csv
+                Для загрузки разрешены файлы только с следующими разрешениями: .doc, .docx, .pdf, .xls, .xlsx, .csv
               </FormDescription>
               <FormMessage/>
             </FormItem>
           )} />
-          <Button variant={'outline'} type={'submit'}>Load</Button>
+          <Button variant={'outline'} type={'submit'}>Загрузить</Button>
         </form>
       </Form>
     </>

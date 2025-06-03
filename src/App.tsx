@@ -13,7 +13,7 @@ import ProjectPage from "./components/pages/project/project-view/ProjectView";
 
 function App() {
   return (
-    <>
+    <div className={"container"}>
       <Header />
       <Routes>
         <Route path="/" element={<Dashboard />} />
@@ -43,7 +43,7 @@ function App() {
         />
       </Routes>
       <Footer />
-    </>
+    </div>
   );
 }
 

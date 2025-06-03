@@ -33,6 +33,8 @@ import {
   Textarea
 } from "@/components/ui/textarea"
 import axios from "axios";
+import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { useNavigate } from "react-router";
 
 type ProjectEditProps = {
   project: IProject;
@@ -63,6 +65,8 @@ function ProjectEdit({
     }
   })
 
+  const navigate = useNavigate();
+
   function onSubmit(values: z.infer<typeof formSchema>) {
     try {
       axios.put(`/api/projects/${project.id}`, {
@@ -82,13 +86,42 @@ function ProjectEdit({
   }
 
   function removeUser(userId: number) {
-    axios.delete(`/api/projects/${project.id}/users/`).then((response) => {
+    axios.delete(`/api/projects/${project.id}/users/${userId}`).then((response) => {
       const updatedUsers = projectUsers.filter((user) => user.id !== userId);
       setProjectUsers(updatedUsers);
       toast.success("User removed successfully");
     }).catch((error) => {
       console.error("Error removing user", error);
       toast.error("Failed to remove user");
+    });
+  }
+
+  function handleUserRoleChange(userId: number, role: string) {
+    axios.put(`/api/projects/${project.id}/users/${userId}`, { role }).then((response) => {
+      const updatedUsers = projectUsers.map((user) => {
+        if (user.id === userId) {
+          return { ...user, pivot: { ...user.pivot, role } };
+        }
+        return user;
+      });
+      setProjectUsers(updatedUsers);
+      toast.success("User role updated successfully");
+    }).catch((error) => {
+      console.error("Error updating user role", error);
+      toast.error("Failed to update user role");
+    });
+  }
+
+  function handleProjectDeletion() {
+    axios.delete(`/api/projects/${project.id}`).then((response) => {
+      if (response.status === 200) {
+        navigate("/projects");
+      } else {
+        toast.error("Failed to delete the project");
+      }
+    }).catch((error) => {
+      console.error("Error deleting project", error);
+      toast.error("Failed to delete project");
     });
   }
 
@@ -142,15 +175,17 @@ function ProjectEdit({
         <div className="flex flex-col space-y-4 py-4">
           <Label>Пользователи</Label>
           <UserAutocomplete projectID={project.id} selectedUsers={selectedUsers} setSelectedUsers={setSelectedUsers} />
-          <div className="flex justify-between">
+          <div className="flex flex-col space-y-1.5">
             {projectUsers && projectUsers.map((user) => (
-              <Badge key={user.id} variant="outline" className="flex items-center gap-2 px-2 py-1">
-                <Avatar className="w-10 h-10">
+              <Badge key={user.id} variant="outline" className="max-w-lg flex items-center gap-3 px-2 py-1">
+                <Avatar className="w-8 h-8">
                   <AvatarImage src={"/placeholder.svg"} alt={user.name} />
                   <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
                 </Avatar>
                 <span className="text-lg">{user.name}</span>
-                <Select value={user.pivot ? user.pivot.role : 'member'}>
+                <Select value={user.pivot ? user.pivot.role : 'member'} onValueChange={(value) => {
+                  handleUserRoleChange(user.id, value);
+                }}>
                   <SelectTrigger>
                     <SelectValue placeholder="Роль" />
                   </SelectTrigger>
@@ -171,6 +206,37 @@ function ProjectEdit({
               </Badge>
             ))}
           </div>
+        </div>
+        <hr/>
+        <div className="flex flex-col space-y-2">
+          <Label className="text-xl">Удалить проект</Label>
+          <Dialog>
+            <DialogTrigger className="max-w-24" asChild>
+              <Button variant={'destructive'}>
+                Удалить
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader className="text-lg">
+                <DialogTitle>
+                  Вы действительно хотите удалить проект?
+                </DialogTitle>
+              </DialogHeader>
+              <DialogDescription>
+                Это действие нельзя отменить. Вы уверены, что хотите удалить проект?
+              </DialogDescription>
+              <DialogFooter className="flex flex-row justify-between">
+                <Button type="submit" onClick={(e) => (handleProjectDeletion())} variant={'destructive'}>
+                  Да, удалить
+                </Button>
+                <DialogClose>
+                  <Button type="reset" variant={'outline'}>
+                    Нет, отменить
+                  </Button>
+                </DialogClose>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
         </div>
       </div>
     </div>

@@ -9,7 +9,7 @@ import { useParams } from "react-router";
 import { columns } from "../file-columns-def.tsx"
 import { DataTable } from "@/components/ui/data-table.tsx";
 import { Button } from "@/components/ui/button.tsx";
-import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog.tsx";
+import { Dialog, DialogContent, DialogDescription, DialogTitle, DialogTrigger } from "@/components/ui/dialog.tsx";
 import LoadingForm from "@/components/widgets/projectFileLoading/LoadingForm.tsx";
 import { Label } from "@/components/ui/label.tsx";
 import { UserAutocomplete } from "./user-autocomplete.tsx";
@@ -98,7 +98,7 @@ function ProjectPage() {
                             <div className="flex flex-col max-w-96 px-2 py-1 rounded-md border-1 border-gray-200">
                                 <p className="font-medium text-xl">Участники</p>
                                 <hr />
-                                <div className="flex flex-col py-1.5">
+                                <div className="flex flex-col py-1.5 space-y-1">
                                     {project.users?.map((user, index) => (
                                         <UserBadge key={index} user={user} withFullName={false} className="text-black rounded-md border-1 border-gray-400" />
                                     ))}
@@ -115,6 +115,10 @@ function ProjectPage() {
                                         <Button>Загрузить файл</Button>
                                     </DialogTrigger>
                                     <DialogContent>
+                                        <DialogTitle>Загрузить файл</DialogTitle>
+                                        <DialogDescription>
+                                            Выберите файл для загрузки в проект {project.name}.
+                                        </DialogDescription>
                                         <LoadingForm projectId={project.id} setOpen={setOpenFileDialog} />
                                     </DialogContent>
                                 </Dialog>

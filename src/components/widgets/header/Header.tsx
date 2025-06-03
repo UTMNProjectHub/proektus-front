@@ -12,7 +12,7 @@ interface HeaderProps {
 function Header({children}: HeaderProps) {
 
   return (
-    <nav className={'flex flex-row items-center justify-between px-16 py-4 border-b-2 max-h-16 bg-linear-[-170deg] from-[#00aeef] via-30% to-[#006fc4] font-inter'}>
+    <nav className={'flex flex-row items-center justify-between px-16 py-4 border-b-2 max-h-[8vh] bg-linear-[-170deg] from-[#00aeef] via-30% to-[#006fc4] font-inter'}>
       <div className="flex flex-row space-x-8">
         <div className={'flex flex-row items-center gap-4'}>
           <a href={'https://www.utmn.ru/'} rel={'noreferrer'}>
