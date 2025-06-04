@@ -46,7 +46,8 @@ type ProjectEditProps = {
 
 const formSchema = z.object({
   name: z.string().min(1),
-  description: z.string().optional()
+  description: z.string().optional(),
+  privacy: z.enum(['public', 'private']),
 });
 
 function ProjectEdit({
@@ -62,6 +63,7 @@ function ProjectEdit({
     defaultValues: {
       name: project.name,
       description: project.description || "",
+      privacy: project.privacy,
     }
   })
 
@@ -168,6 +170,18 @@ function ProjectEdit({
                 </FormItem>
               )}
             />
+
+            <Select value={form.watch('privacy')} onValueChange={(value) => {
+              form.setValue('privacy', value as 'public' | 'private');
+            }}>
+              <SelectTrigger>
+                <SelectValue placeholder={'Приватность'} />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value={'public'}>Публичный</SelectItem>
+                <SelectItem value={'private'}>Приватный</SelectItem>
+              </SelectContent>
+            </Select>
             <Button type="submit">Сохранить</Button>
           </form>
         </Form>
@@ -226,7 +240,7 @@ function ProjectEdit({
                 Это действие нельзя отменить. Вы уверены, что хотите удалить проект?
               </DialogDescription>
               <DialogFooter className="flex flex-row justify-between">
-                <Button type="submit" onClick={(e) => (handleProjectDeletion())} variant={'destructive'}>
+                <Button type="submit" onClick={() => (handleProjectDeletion())} variant={'destructive'}>
                   Да, удалить
                 </Button>
                 <DialogClose>

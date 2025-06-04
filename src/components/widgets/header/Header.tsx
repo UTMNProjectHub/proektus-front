@@ -1,8 +1,11 @@
 import {Link} from "react-router";
 import UserHolder from "@/components/widgets/header/UserHolder.tsx";
-import {memo, ReactNode} from "react";
+import {memo, ReactNode, useEffect, useState} from "react";
 import { NavigationMenu, NavigationMenuList } from "@/components/ui/navigation-menu";
 import ProjectNavigation from "./ProjectNavigation";
+import {Popover, PopoverContent, PopoverTrigger} from "@/components/ui/popover.tsx";
+import {Bell} from "lucide-react";
+import {useSanctum} from "react-sanctum";
 
 
 interface HeaderProps {
@@ -10,6 +13,17 @@ interface HeaderProps {
 }
 
 function Header({children}: HeaderProps) {
+  const {user, authenticated} = useSanctum();
+  const [notifications, setNotifications] = useState<any[]>([]);
+
+  useEffect(() =>{
+    if (authenticated && user) {
+        window.Echo.private(`App.Models.User.${user.data.id}`)
+            .notification((notification) => {
+            setNotifications((prev) => [...prev, notification]);
+            });
+    }
+  }, [authenticated, user])
 
   return (
     <nav className={'flex flex-row items-center justify-between px-16 py-4 border-b-2 max-h-[8vh] bg-linear-[-170deg] from-[#00aeef] via-30% to-[#006fc4] font-inter'}>
@@ -35,7 +49,19 @@ function Header({children}: HeaderProps) {
         </NavigationMenu>
         {children}
       </div>
-      <UserHolder/>
+      <div className={'inline-flex gap-4'}>
+        <Popover>
+          <PopoverTrigger>
+            <Bell className={'size-5 invert'} />
+          </PopoverTrigger>
+          <PopoverContent>
+            <div>
+                <h3 className={'text-gray-500'}>Уведомления</h3>
+            </div>
+          </PopoverContent>
+        </Popover>
+        <UserHolder/>
+      </div>
     </nav>
   )
 }

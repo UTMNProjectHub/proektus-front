@@ -1,42 +1,32 @@
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs.tsx";
 import UserBadge from "@/components/ui/userbadge";
-import { IProject, IProjectFile, IProjectUser } from "@/components/widgets/projects/types/ProjectTypes";
+import { IProject, IProjectUser } from "@/components/widgets/projects/types/ProjectTypes";
 import axios from "axios";
-import { BookOpen, GitBranch, X } from "lucide-react";
+import { BookOpen, GitBranch } from "lucide-react";
 import { useEffect, useState } from "react";
-import { useParams } from "react-router";
-import { columns } from "../file-columns-def.tsx"
-import { DataTable } from "@/components/ui/data-table.tsx";
-import { Button } from "@/components/ui/button.tsx";
-import { Dialog, DialogContent, DialogDescription, DialogTitle, DialogTrigger } from "@/components/ui/dialog.tsx";
-import LoadingForm from "@/components/widgets/projectFileLoading/LoadingForm.tsx";
-import { Label } from "@/components/ui/label.tsx";
-import { UserAutocomplete } from "./user-autocomplete.tsx";
+import {useNavigate, useParams} from "react-router";
 import { IUser } from "@/models/user/types.ts";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar.tsx";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select.tsx";
 import ProjectEdit from "./project-edit.tsx";
+import ProjectFiles from "@/components/pages/project/project-view/project-files.tsx";
+import {toast} from "sonner";
 
 function ProjectPage() {
     const param = useParams();
     const [project, setProject] = useState({} as IProject);
-    const [projectFiles, setProjectFiles] = useState<IProjectFile[]>([]);
-    const [openFileDialog, setOpenFileDialog] = useState(false);
     const [selectedUsers, setSelectedUsers] = useState<IUser[]>([]);
     const [projectUsers, setProjectUsers] = useState<IProjectUser[]>([]);
+    const navigate = useNavigate();
 
     useEffect(() => {
         axios.get(`/api/projects/${param.id}`).then((response) => {
             setProject(response.data);
         }).catch((error) => {
-            console.error("Error fetching project:", error);
-        });
+            toast.error("Ошибка при загрузке проекта: " + error.message);
 
-        axios.get(`/api/projects/${param.id}/files`).then((response) => {
-            setProjectFiles(response.data.files);
-        }).catch((error) => {
-            console.error("Error fetching project files:", error);
+            if (error.status === 404) {
+                navigate('/404');
+            }
         });
     }, []);
 
@@ -44,16 +34,14 @@ function ProjectPage() {
         axios.get(`/api/projects/${param.id}/users`).then((response) => {
             setProjectUsers(response.data.users);
         }).catch((error) => {
-            console.error("Error fetching project users:", error);
+            toast.error("Ошибка при загрузке участников проекта: " + error.message);
         });
     }, [selectedUsers]);
-
-    console.log(selectedUsers)
 
     return (
         <div className="flex flex-col mx-10 py-6 justify-center">
             <div className="">
-                {project.cover ? (<img src={`${import.meta.env.VITE_APP_URL}/storage/${project.cover}`} alt="Cover preview" className="h-24 w-full object-fill rounded-t-md" />) : (<div className="h-24 w-full bg-gray-200 rounded-t-md" />)}
+                {project.cover ? (<img src={`${import.meta.env.VITE_APP_URL}/storage/${project.cover}`} alt="Cover preview" className="h-24 w-full object-contain rounded-t-md" />) : (<div className="h-24 w-full bg-gray-200 rounded-t-md" />)}
             </div>
 
             <div className="border-gray-200 border-1">
@@ -99,32 +87,16 @@ function ProjectPage() {
                                 <p className="font-medium text-xl">Участники</p>
                                 <hr />
                                 <div className="flex flex-col py-1.5 space-y-1">
-                                    {project.users?.map((user, index) => (
+                                    {project.users?.length ? project.users?.map((user, index) => (
                                         <UserBadge key={index} user={user} withFullName={false} className="text-black rounded-md border-1 border-gray-400" />
-                                    ))}
+                                    )) : <div className={'text-center text-muted-foreground w-36'}>Нет участников</div>}
                                 </div>
                             </div>
                         </div>
 
                     </TabsContent>
                     <TabsContent value="files">
-                        <div className="flex flex-col space-y-4 justify-between px-6 py-4">
-                            <div className="flex flex-row">
-                                <Dialog open={openFileDialog} onOpenChange={setOpenFileDialog}>
-                                    <DialogTrigger asChild>
-                                        <Button>Загрузить файл</Button>
-                                    </DialogTrigger>
-                                    <DialogContent>
-                                        <DialogTitle>Загрузить файл</DialogTitle>
-                                        <DialogDescription>
-                                            Выберите файл для загрузки в проект {project.name}.
-                                        </DialogDescription>
-                                        <LoadingForm projectId={project.id} setOpen={setOpenFileDialog} />
-                                    </DialogContent>
-                                </Dialog>
-                            </div>
-                            <DataTable columns={columns} data={projectFiles} />
-                        </div>
+                        <ProjectFiles project={project} />
                     </TabsContent>
                     <TabsContent value="settings">
                         <ProjectEdit project={project} projectUsers={projectUsers} setProjectUsers={setProjectUsers} selectedUsers={selectedUsers} setSelectedUsers={setSelectedUsers} />

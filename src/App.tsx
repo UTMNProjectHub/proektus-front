@@ -7,13 +7,13 @@ import Profile from "@/components/pages/profile/Profile.tsx";
 import ErrorPage from "@/components/pages/error/ErrorPage.tsx";
 import Header from "@/components/widgets/header/Header.tsx";
 import Footer from "@/components/widgets/footer/Footer.tsx";
-import LoadingForm from "@/components/widgets/projectFileLoading/LoadingForm.tsx";
 import ProjectCreate from "./components/pages/project/create/ProjectCreate";
 import ProjectPage from "./components/pages/project/project-view/ProjectView";
+import {Toaster} from "@/components/ui/sonner.tsx";
 
 function App() {
   return (
-    <div className={"container"}>
+    <>
       <Header />
       <Routes>
         <Route path="/" element={<Dashboard />} />
@@ -43,7 +43,8 @@ function App() {
         />
       </Routes>
       <Footer />
-    </div>
+        <Toaster />
+    </>
   );
 }
 
