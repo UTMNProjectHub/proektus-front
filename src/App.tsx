@@ -10,19 +10,20 @@ import Footer from "@/components/widgets/footer/Footer.tsx";
 import ProjectCreate from "./components/pages/project/create/ProjectCreate";
 import ProjectPage from "./components/pages/project/project-view/ProjectView";
 import {Toaster} from "@/components/ui/sonner.tsx";
+import Landing from "@/components/pages/landing/Landing.tsx";
 
 function App() {
   return (
     <>
       <Header />
       <Routes>
-        <Route path="/" element={<Dashboard />} />
+        <Route path="/" element={<Landing/>} />
         <Route path="/signin" element={<SignIn />} />
         <Route path="/admin" element={<AdminPanel />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/projects" element={<Dashboard />} />
         <Route path="/project/:id" element={<ProjectPage/>} />
-        <Route path="/projects/my" element={<Dashboard />} />
+        <Route path="/projects/my" element={<Dashboard personal={true}/>} />
         <Route path="/projects/create" element={<ProjectCreate />} />
         <Route
           path="*"

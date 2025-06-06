@@ -8,10 +8,10 @@ export interface IProjectsResponse {
     last_page: number
     last_page_url: string
     links: ILink[]
-    next_page_url: any
+    next_page_url: string | null
     path: string
     per_page: number
-    prev_page_url: any
+    prev_page_url: string | null
     to: number
     total: number
 }
@@ -21,10 +21,11 @@ export interface IProject {
     name: string
     description: string
     logo: string
-    cover: any
+    cover: string | null
     created_at: string
     updated_at: string
-    deleted_at: any
+    deleted_at: string | null
+    privacy: "public" | "private"
     users?: IProjectUser[]
     tags?: ITag[]
     urls?: IProjectUrl[]
@@ -78,7 +79,7 @@ export interface IProjectUser extends IUser {
   surname: string
   middlename: string
   avatar?: string
-  deleted_at: any
+  deleted_at: string | null
   pivot: IUserPivot
 }
 

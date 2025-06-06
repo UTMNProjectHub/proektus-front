@@ -99,8 +99,8 @@ function NewSignIn() {
 
   if (authenticated) {
     return (
-      <div className={''}>
-        <Card className={'max-w-md mx-auto my-8'}>
+      <div className={'min-h-[calc(100vh-8vh)] flex items-center justify-center'}>
+        <Card className={'w-sm mx-auto my-8'}>
           <CardHeader className={'text-center font-bold'}>
             Вы уже авторизованы как
           </CardHeader>
