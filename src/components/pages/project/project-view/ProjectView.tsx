@@ -95,7 +95,9 @@ function ProjectPage() {
         }
     }, [isEditable, editor, readmeContent]);
 
-    console.log(project);
+    if (import.meta.env.MODE === 'development') {
+        console.log(project);
+    }
 
     if (project === null) { // Explicitly check for null
         return <GenericLoader/>
