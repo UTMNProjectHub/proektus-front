@@ -113,7 +113,7 @@ function ProjectCreate() {
       }).then((response) => {
         if (response.status === 201) {
           toast.success("Проект успешно создан!");
-          navigate(`/project/my`);
+          navigate(`/projects/my`);
         }
       }).catch((error) => {
         toast.error("Ошибка при создании проекта: " + error.message);
