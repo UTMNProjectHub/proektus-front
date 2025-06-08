@@ -44,7 +44,7 @@ function Dashboard({ personal = false }: { personal?: boolean }) {
       setPage(validPage);
       navigate(`?page=${validPage}`);
     }
-  }, []);
+  }, [navigate, page, pageData.last_page]);
 
   useEffect(() => {
     if (pageParam) {

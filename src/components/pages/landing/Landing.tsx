@@ -13,7 +13,7 @@ function Landing() {
        <section className="relative text-center space-y-6 bg-blue-50 rounded-lg p-12 overflow-hidden">
          <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-blue-200 rounded-full opacity-50 blur-3xl"></div>
          <div className="absolute bottom-0 right-10 w-40 h-40 bg-purple-200 rounded-full opacity-50 blur-2xl"></div>
-          <h1 className="text-5xl font-extrabold">
+          <h1 className="text-3xl sm:text-5xl font-extrabold">
             Проектус — ваша <span className="text-blue-500">платформа</span> для хранения и коллаборации
           </h1>
           <p className="text-lg text-gray-600">
