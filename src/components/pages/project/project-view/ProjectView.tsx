@@ -97,7 +97,7 @@ function ProjectPage() {
 
     console.log(project);
 
-    if (!project) {
+    if (project === null) { // Explicitly check for null
         return <GenericLoader/>
     }
 
