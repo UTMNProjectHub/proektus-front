@@ -65,7 +65,7 @@ function ProjectPage() {
                 toast.error("Ошибка при загрузке README: " + err.message);
             });
 
-    }, [editor?.commands, id, navigate]);
+    }, [id, navigate]);
 
     useEffect(() => {
         axios
