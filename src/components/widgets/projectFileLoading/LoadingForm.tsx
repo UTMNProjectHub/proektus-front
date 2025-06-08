@@ -11,7 +11,6 @@ import {
 import {z} from "zod";
 import {useForm} from "react-hook-form";
 import {zodResolver} from "@hookform/resolvers/zod";
-import {Card} from "@/components/ui/card.tsx";
 import {Button} from "@/components/ui/button.tsx";
 import axios from "axios";
 
@@ -33,7 +32,7 @@ const schema = z.object({
     })
 });
 
-function LoadingForm() {
+function LoadingForm({projectId, setOpen}: { projectId: number, setOpen: (open: boolean) => void }) {
   const form = useForm<z.infer<typeof schema>>({
     resolver: zodResolver(schema),
     defaultValues: {
@@ -48,24 +47,26 @@ function LoadingForm() {
       if (data.file) {
         formData.append('file', data.file);
       }
+
+      formData.append('project_id', projectId.toString());
       
       axios.post('/api/file/upload', formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }
-      }).then(res => {console.log(res)});
+      }).then(res => {console.log(res)}).finally(() => {setOpen(false)});
     } catch (e) {
       console.log(e);
     }
   };
 
   return (
-    <Card className={'max-w-md px-4 py-2'}>
+    <>
       <Form {...form}>
         <form className={'space-y-1'} onSubmit={form.handleSubmit(onSubmit)}>
           <FormField name={'file'} control={form.control} render={({field: {onChange, value, ...fieldProps}}) => (
             <FormItem>
-              <FormLabel>Choose file to load</FormLabel>
+              <FormLabel>Выберите файл для загрузки</FormLabel>
               <FormControl>
                 <Input 
                   type={'file'} 
@@ -75,15 +76,15 @@ function LoadingForm() {
                 />
               </FormControl>
               <FormDescription>
-                Only files with the following extensions are allowed: .doc, .docx, .pdf, .xls, .xlsx, .csv
+                Для загрузки разрешены файлы только с следующими разрешениями: .doc, .docx, .pdf, .xls, .xlsx, .csv
               </FormDescription>
               <FormMessage/>
             </FormItem>
           )} />
-          <Button variant={'outline'} type={'submit'}>Load</Button>
+          <Button variant={'outline'} type={'submit'}>Загрузить</Button>
         </form>
       </Form>
-    </Card>
+    </>
   )
 }
 

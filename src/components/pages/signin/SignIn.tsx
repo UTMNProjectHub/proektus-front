@@ -14,7 +14,7 @@ import {zodResolver} from "@hookform/resolvers/zod";
 import {useNavigate} from "react-router";
 import {useSanctum} from "react-sanctum";
 import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/components/ui/tabs.tsx";
-import {Card, CardContent, CardHeader} from "@/components/ui/card";
+import {Card, CardContent, CardDescription, CardHeader, CardTitle} from "@/components/ui/card";
 import {Button} from "@/components/ui/button.tsx";
 import {useState} from "react";
 import axios from "axios";
@@ -99,10 +99,10 @@ function NewSignIn() {
 
   if (authenticated) {
     return (
-      <div className={''}>
-        <Card className={'max-w-md mx-auto my-8'}>
+      <div className={'min-h-[calc(100vh-8vh)] flex items-center justify-center'}>
+        <Card className={'w-sm mx-auto my-8'}>
           <CardHeader className={'text-center font-bold'}>
-            You are already signed in as
+            Вы уже авторизованы как
           </CardHeader>
           <CardContent>
             <Avatar className={'size-16 mx-auto mb-2'}>
@@ -114,7 +114,7 @@ function NewSignIn() {
               <span>
                 {user.data.surname} {user.data.firstname.slice(0, 1)}. (@{user.data.name})
               </span>
-              <Button variant={'link'} onClick={signOut}>Sign out</Button>
+              <Button variant={'link'} onClick={signOut}>Выйти</Button>
             </div>
           </CardContent>
         </Card>
@@ -127,23 +127,28 @@ function NewSignIn() {
       <Tabs defaultValue={'login'}>
         <TabsList className={'grid w-full grid-cols-2'}>
           <TabsTrigger value={'login'}>
-            Login
+            Авторизация
           </TabsTrigger>
           <TabsTrigger value={'register'}>
-            Register
+            Регистрация
           </TabsTrigger>
         </TabsList>
         <TabsContent value={'login'}>
           <Card>
             <CardHeader>
-              Login
+              <CardTitle>
+                Авторизация
+              </CardTitle>
+              <CardDescription>
+              Введите свои учетные данные для входа в систему. Если у вас еще нет учетной записи, пожалуйста, зарегистрируйтесь.
+            </CardDescription>
             </CardHeader>
             <CardContent>
               <Form {...loginForm}>
                 <form onSubmit={loginForm.handleSubmit(onLoginSubmit)} className={'space-y-6'}>
                   {loginError && <Card>
                       <CardHeader className={'font-bold'}>
-                          Error!
+                          Ошибка!
                       </CardHeader>
                       <CardContent className={'text-destructive-foreground'}>
                         {loginError}
@@ -152,12 +157,12 @@ function NewSignIn() {
                   <FormField control={loginForm.control} name={'email'} render={({field}) => {
                     return (
                       <FormItem>
-                        <FormLabel>email</FormLabel>
+                        <FormLabel>электропочта</FormLabel>
                         <FormControl>
                           <Input placeholder={'example@utmn.ru'} {...field} />
                         </FormControl>
                         <FormDescription>
-                          email must be lowercase
+                          электропочта, должна быть в домене utmn.ru
                         </FormDescription>
                         <FormMessage/>
                       </FormItem>
@@ -166,12 +171,12 @@ function NewSignIn() {
                   <FormField control={loginForm.control} name={'password'} render={({field}) => {
                     return (
                       <FormItem>
-                        <FormLabel>password</FormLabel>
+                        <FormLabel>пароль</FormLabel>
                         <FormControl>
                           <PasswordInput placeholder={'*******'} {...field} />
                         </FormControl>
                         <FormDescription>
-                          password must be at least 8 characters, with at least one special symbol and uppercase letter
+                          пароль должен быть не менее 8 символов, с заглавной буквой и спецсимволом
                         </FormDescription>
                         <FormMessage/>
                       </FormItem>
@@ -179,12 +184,12 @@ function NewSignIn() {
                   }}/>
                   <div className={'flex flex-row space-x-4'}>
                     <Button variant={'outline'} className={'w-32'}
-                            onClick={loginForm.handleSubmit(onLoginSubmit)}>Login</Button>
+                            onClick={loginForm.handleSubmit(onLoginSubmit)}>Войти</Button>
                     <FormField control={loginForm.control} name={'remember'} render={({field}) => {
                       return (
                         <FormItem className={'flex flex-row items-center'}>
                           <FormLabel>
-                            remember me
+                            Запомнить меня
                           </FormLabel>
                           <FormControl>
                             <input type={'checkbox'} checked={field.value} onChange={field.onChange}
@@ -204,14 +209,16 @@ function NewSignIn() {
         <TabsContent value={'register'}>
           <Card>
             <CardHeader>
-              Register
+              <CardTitle>
+               Регистрация
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <Form {...registerForm}>
                 <form onSubmit={registerForm.handleSubmit(onRegisterSubmit)} className={'space-y-6'}>
                   {registerError && <Card>
                       <CardHeader className={'font-bold'}>
-                          Error!
+                          Ошибка!
                       </CardHeader>
                       <CardContent className={'text-destructive-foreground'}>
                         {Object.keys(registerError).map((key) => {
@@ -233,12 +240,12 @@ function NewSignIn() {
                   <FormField control={registerForm.control} name={'email'} render={({field}) => {
                     return (
                       <FormItem>
-                        <FormLabel>email</FormLabel>
+                        <FormLabel>электропочта</FormLabel>
                         <FormControl>
                           <Input type={'email'} placeholder={'example@utmn.ru'} {...field} />
                         </FormControl>
                         <FormDescription>
-                          your email address, lowercase
+                          электропочта, должна быть в домене utmn.ru
                         </FormDescription>
                         <FormMessage/>
                       </FormItem>
@@ -252,7 +259,7 @@ function NewSignIn() {
                           <Input placeholder={'username'} {...field} />
                         </FormControl>
                         <FormDescription>
-                          your username, must be unique
+                          ваш username, должен быть уникальным
                         </FormDescription>
                         <FormMessage/>
                       </FormItem>
@@ -261,12 +268,12 @@ function NewSignIn() {
                   <FormField control={registerForm.control} name={'password'} render={({field}) => {
                     return (
                       <FormItem>
-                        <FormLabel>password</FormLabel>
+                        <FormLabel>пароль</FormLabel>
                         <FormControl>
                           <Input type={'password'} placeholder={'******'} {...field} />
                         </FormControl>
                         <FormDescription>
-                          password must be at least 8 characters, with at least one special symbol and uppercase letter
+                          пароль должен быть не менее 8 символов, с заглавной буквой и спецсимволом
                         </FormDescription>
                         <FormMessage/>
                       </FormItem>
@@ -275,12 +282,12 @@ function NewSignIn() {
                   <FormField control={registerForm.control} name={'password_confirmation'} render={({field}) => {
                     return (
                       <FormItem>
-                        <FormLabel>confirm password</FormLabel>
+                        <FormLabel>подтверждение пароля</FormLabel>
                         <FormControl>
                           <Input type={'password'} placeholder={'******'} {...field} />
                         </FormControl>
                         <FormDescription>
-                          confirm your password
+                          повторите пароль для подтверждения
                         </FormDescription>
                         <FormMessage/>
                       </FormItem>
@@ -289,7 +296,7 @@ function NewSignIn() {
                   <FormField control={registerForm.control} name={'surname'} render={({field}) => {
                     return (
                       <FormItem>
-                        <FormLabel>surname</FormLabel>
+                        <FormLabel>фамилия</FormLabel>
                         <FormControl>
                           <Input placeholder={'Ivanov'} {...field} />
                         </FormControl>
@@ -300,7 +307,7 @@ function NewSignIn() {
                   <FormField control={registerForm.control} name={'firstname'} render={({field}) => {
                     return (
                       <FormItem>
-                        <FormLabel>firstname</FormLabel>
+                        <FormLabel>имя</FormLabel>
                         <FormControl>
                           <Input placeholder={'Ivan'} {...field} />
                         </FormControl>
@@ -311,7 +318,7 @@ function NewSignIn() {
                   <FormField control={registerForm.control} name={'middlename'} render={({field}) => {
                     return (
                       <FormItem>
-                        <FormLabel>middlename</FormLabel>
+                        <FormLabel>отчество</FormLabel>
                         <FormControl>
                           <Input placeholder={'Ivanovich'} {...field} />
                         </FormControl>
@@ -321,7 +328,7 @@ function NewSignIn() {
                   }}/>
                   <div className={'flex justify-center flex-row space-x-4'}>
                     <Button variant={'outline'} className={'w-48'}
-                            onClick={registerForm.handleSubmit(onRegisterSubmit)}>Register</Button>
+                            onClick={registerForm.handleSubmit(onRegisterSubmit)}>Зарегистрировать</Button>
                   </div>
                 </form>
               </Form>

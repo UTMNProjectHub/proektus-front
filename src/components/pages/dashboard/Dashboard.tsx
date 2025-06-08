@@ -6,31 +6,45 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
-import { useEffect, useState } from "react";
+import {useCallback, useEffect, useState} from "react";
 import axios from "axios";
-import { Card } from "@/components/ui/card";
 import { IProjectsResponse } from "../../widgets/projects/types/ProjectTypes";
 import ProjectCard from "../../widgets/projects/ProjectCard";
-import { useNavigate, useParams } from "react-router";
+import { useNavigate } from "react-router";
+import { useSanctum } from "react-sanctum";
 
-function Dashboard() {
+function Dashboard({ personal = false }: { personal?: boolean }) {
   const navigate = useNavigate();
 
   const [pageData, setPageData] = useState({} as IProjectsResponse);
-  const [pageSize, setPageSize] = useState(10);
+  const [pageSize, setPageSize] = useState(8);
+  const { user } = useSanctum();
+
+  // adjust number of items per page based on viewport width
+  useEffect(() => {
+    const updatePageSize = () => {
+      const width = window.innerWidth;
+      if (width < 640) setPageSize(4);
+      else if (width < 1024) setPageSize(6);
+      else setPageSize(8);
+    };
+    updatePageSize();
+    window.addEventListener("resize", updatePageSize);
+    return () => window.removeEventListener("resize", updatePageSize);
+  }, []);
 
   const urlParams = new URLSearchParams(window.location.search);
   const pageParam = urlParams.get("page");
   const [page, setPage] = useState(pageParam ? parseInt(pageParam) : 1);
 
-  const handlePageChange = (newPage: number) => {
+  const handlePageChange = useCallback((newPage: number) => {
     const validPage = Math.max(1, Math.min(newPage, pageData.last_page || 1));
 
     if (validPage !== page) {
       setPage(validPage);
       navigate(`?page=${validPage}`);
     }
-  };
+  }, []);
 
   useEffect(() => {
     if (pageParam) {
@@ -48,11 +62,18 @@ function Dashboard() {
         setPage(1);
       }
     }
-  }, [location.search, pageParam, pageData.last_page]);
+  }, [pageParam, pageData.last_page, page, navigate]);
 
   useEffect(() => {
+    if (personal && !user) {
+      return;
+    }
+
+    const url = personal && user ? `/api/projects?page=${page}&per_page=${pageSize}&user=${user.data.id}` :
+      `/api/projects?page=${page}&per_page=${pageSize}`;
+
     axios
-      .get(`/api/projects?page=${page}&per_page=${pageSize}`)
+      .get(url)
       .then((response) => {
         setPageData(response.data);
 
@@ -65,11 +86,33 @@ function Dashboard() {
       .catch((error) => {
         console.error("Error fetching projects:", error);
       });
-  }, [page]);
+  }, [handlePageChange, page, pageSize, personal, user]);
+
+  const pageNumbers: (number | string)[] = (() => {
+    const total = pageData.last_page || 0;
+    const current = pageData.current_page || 1;
+    const delta = 2;
+    const range: (number | string)[] = [];
+    let last: number | string = 0;
+    for (let i = 1; i <= total; i++) {
+      if (
+        i === 1 ||
+        i === total ||
+        (i >= current - delta && i <= current + delta)
+      ) {
+        range.push(i);
+        last = i;
+      } else if (last !== '...') {
+        range.push('...');
+        last = '...';
+      }
+    }
+    return range;
+  })();
 
   return (
-    <div className="container flex flex-col mx-auto pt-8 pb-2">
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+    <div className="container flex flex-col mx-auto px-4 py-6">
+      <div className="grid grid-cols-1 mx-10 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-4">
         {pageData.data &&
           pageData.data.map((item, index) => (
             <ProjectCard key={`project_${index}`} project={item} />
@@ -80,18 +123,22 @@ function Dashboard() {
         <PaginationContent>
           {pageData.current_page > 1 && (
             <PaginationItem>
-              <PaginationLink onClick={() => handlePageChange(page - 1)} />
+              <PaginationPrevious onClick={() => handlePageChange(page - 1)} />
             </PaginationItem>
           )}
 
-          {Array.from({ length: pageData.last_page || 0 }, (_, index) => (
-            <PaginationItem key={index}>
-              <PaginationLink
-                isActive={pageData.current_page === index + 1}
-                onClick={() => handlePageChange(index + 1)}
-              >
-                {index + 1}
-              </PaginationLink>
+          {pageNumbers.map((item, idx) => (
+            <PaginationItem key={idx}>
+              {typeof item === 'string' ? (
+                <span className="px-3 py-1 text-gray-500">...</span>
+              ) : (
+                <PaginationLink
+                  isActive={pageData.current_page === item}
+                  onClick={() => handlePageChange(item as number)}
+                >
+                  {item}
+                </PaginationLink>
+              )}
             </PaginationItem>
           ))}
 
