@@ -1,22 +1,30 @@
-import {useSanctum} from "react-sanctum";
-import {useEffect} from "react";
+import {useEffect, useState} from "react";
 import {useNavigate, Link} from "react-router";
 import GenericLoader from "@/components/ui/genericLoader.tsx";
 import {Card, CardContent, CardDescription, CardHeader, CardTitle} from "@/components/ui/card.tsx";
 import {Button} from "@/components/ui/button.tsx";
-//авааа
+import axios from "axios";
+import {UserData} from "@/models/user/types.ts";
+
 function Profile() {
-  const {user, authenticated} = useSanctum();
+  const [user, setUser] = useState<UserData>({} as UserData);
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (authenticated === false) {
-      navigate('/401');
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [authenticated]);
+    axios.get("/api/profile").then((response) => {
+        setUser(response.data.user);
+    }).catch((error) => {
+        if (error.response && error.response.status === 401) {
+            navigate("/login");
+        } else {
+            console.error("Ошибка при загрузке профиля:", error);
+        }
+    })
+  }, [navigate]);
 
-  if (authenticated === null) {
+  console.log(user);
+
+  if (!user || Object.keys(user).length === 0) {
     return(
       <GenericLoader/>
     )
@@ -33,29 +41,29 @@ function Profile() {
           <CardContent className="space-y-4">
             <div>
               <h3 className="font-semibold">ФИО:</h3>
-              <p>{user.data.surname} {user.data.firstname} {user.data.middlename}</p>
+              <p>{user.surname} {user.firstname} {user.middlename}</p>
             </div>
             <div>
               <h3 className="font-semibold">Электропочта:</h3>
-              <p>{user.data.email}</p>
+              <p>{user.email}</p>
             </div>
             <div>
               <h3 className="font-semibold">Юзернейм:</h3>
-              <p>{user.data.name}</p>
+              <p>{user.name}</p>
             </div>
             <div>
               <h3 className="font-semibold">Роли:</h3>
               <ul className="list-disc list-inside">
-                {user.data.roles.map((role: { id: number; name: string }) => (
+                {user.roles && user.roles.map((role: { id: number; name: string }) => (
                   <li key={role.id}>{role.name}</li>
                 ))}
               </ul>
             </div>
             <div>
               <h3 className="font-semibold">Присоединились:</h3>
-              <p>{new Date(user.data.created_at).toLocaleDateString()}</p>
+              <p>{new Date(user.created_at).toLocaleDateString()}</p>
             </div>
-            <Link to="/profile-edit">
+            <Link to="/profile/edit">
               <Button>Редактировать</Button>
             </Link>
           </CardContent>
