@@ -11,7 +11,6 @@ import {
 import {z} from "zod";
 import {useForm} from "react-hook-form";
 import {zodResolver} from "@hookform/resolvers/zod";
-import {Card} from "@/components/ui/card.tsx";
 import {Button} from "@/components/ui/button.tsx";
 import axios from "axios";
 

@@ -8,9 +8,8 @@ import {Badge} from "@/components/ui/badge"
 import {Avatar} from "@/components/ui/avatar"
 import {AvatarImage, AvatarFallback} from "@/components/ui/avatar"
 import {cn} from "@/lib/utils"
-import {IUser} from "../../../../models/user/types"
+import {IUser} from "@/models/user/types.ts"
 import axios from "axios"
-import {Button} from "@/components/ui/button"
 import {toast} from "sonner";
 
 interface UserAutocompleteProps {
@@ -76,7 +75,9 @@ export function UserAutocomplete({
             setIsLoading(true)
             try {
                 const response = await axios.get(`/api/users/search?username=${encodeURIComponent(query)}`)
-                if (response.status != 200) throw new Error("Failed to fetch users")
+                if (response.status != 200) {
+                    toast.error('Ошибка при получении пользователей');
+                }
                 const data = await response.data
                 console.log(data)
                 setResults(data.users)

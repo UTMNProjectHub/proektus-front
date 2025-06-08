@@ -19,7 +19,7 @@ function Landing() {
           <p className="text-lg text-gray-600">
             Храните студенческие работы, объединяйтесь в команды и ищите нужные проекты с помощью нашего AI.
           </p>
-          <Button onClick={() => {authenticated ? navigate('/projects/create') : navigate('/signin')}} size="lg" className="bg-blue-500 hover:bg-blue-600 text-white">
+          <Button onClick={() => authenticated ? navigate('/projects/create') : navigate('/signin')} size="lg" className="bg-blue-500 hover:bg-blue-600 text-white">
             Начать бесплатно
           </Button>
        </section>
