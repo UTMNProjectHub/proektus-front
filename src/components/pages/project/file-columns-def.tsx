@@ -61,7 +61,7 @@ export function getFileColumns(onDeleteSuccess: (fileId: number) => void): Colum
                             window.URL.revokeObjectURL(url);
                         })
                     } catch (e) {
-                        toast.error('Ошибка при скачивании файла: ' + e.error);
+                        toast.error('Ошибка при скачивании файла: ' + e.message);
                     }
                 };
 
