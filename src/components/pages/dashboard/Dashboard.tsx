@@ -6,12 +6,11 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
-import { useEffect, useState } from "react";
+import {useCallback, useEffect, useState} from "react";
 import axios from "axios";
-import { Card } from "@/components/ui/card";
 import { IProjectsResponse } from "../../widgets/projects/types/ProjectTypes";
 import ProjectCard from "../../widgets/projects/ProjectCard";
-import { useNavigate, useParams } from "react-router";
+import { useNavigate } from "react-router";
 import { useSanctum } from "react-sanctum";
 
 function Dashboard({ personal = false }: { personal?: boolean }) {
@@ -38,14 +37,14 @@ function Dashboard({ personal = false }: { personal?: boolean }) {
   const pageParam = urlParams.get("page");
   const [page, setPage] = useState(pageParam ? parseInt(pageParam) : 1);
 
-  const handlePageChange = (newPage: number) => {
+  const handlePageChange = useCallback((newPage: number) => {
     const validPage = Math.max(1, Math.min(newPage, pageData.last_page || 1));
 
     if (validPage !== page) {
       setPage(validPage);
       navigate(`?page=${validPage}`);
     }
-  };
+  }, []);
 
   useEffect(() => {
     if (pageParam) {
@@ -63,10 +62,14 @@ function Dashboard({ personal = false }: { personal?: boolean }) {
         setPage(1);
       }
     }
-  }, [location.search, pageParam, pageData.last_page]);
+  }, [pageParam, pageData.last_page, page, navigate]);
 
   useEffect(() => {
-    const url = personal && user ? `/api/projects/projects?page=${page}&per_page=${pageSize}&user=${user.data.id}` :
+    if (personal && !user) {
+      return;
+    }
+
+    const url = personal && user ? `/api/projects?page=${page}&per_page=${pageSize}&user=${user.data.id}` :
       `/api/projects?page=${page}&per_page=${pageSize}`;
 
     axios
@@ -83,7 +86,7 @@ function Dashboard({ personal = false }: { personal?: boolean }) {
       .catch((error) => {
         console.error("Error fetching projects:", error);
       });
-  }, [page, pageSize]);
+  }, [handlePageChange, page, pageSize, personal, user]);
 
   const pageNumbers: (number | string)[] = (() => {
     const total = pageData.last_page || 0;

@@ -12,9 +12,10 @@ import GenericLoader from "@/components/ui/genericLoader.tsx";
 
 interface PageProps {
     project: IProject;
+    isProjectUser: boolean;
 }
 
-function ProjectFiles({ project }: PageProps)
+function ProjectFiles({ project, isProjectUser }: PageProps)
 {
     const [projectFiles, setProjectFiles] = useState<IProjectFile[]>([]);
     const [openFileDialog, setOpenFileDialog] = useState(false);
@@ -41,7 +42,7 @@ function ProjectFiles({ project }: PageProps)
     return (
         <div className="flex flex-col space-y-4 justify-between px-6 py-4">
             <div className="flex flex-row">
-                <Dialog open={openFileDialog} onOpenChange={setOpenFileDialog}>
+                {isProjectUser && <Dialog open={openFileDialog} onOpenChange={setOpenFileDialog}>
                     <DialogTrigger asChild>
                         <Button>Загрузить файл</Button>
                     </DialogTrigger>
@@ -52,7 +53,7 @@ function ProjectFiles({ project }: PageProps)
                         </DialogDescription>
                         <LoadingForm projectId={project.id} setOpen={setOpenFileDialog} />
                     </DialogContent>
-                </Dialog>
+                </Dialog>}
             </div>
             <DataTable columns={getFileColumns(handleDelete)} data={projectFiles} />
         </div>

@@ -6,33 +6,66 @@ import axios from "axios";
 import {BookOpen, GitBranch} from "lucide-react";
 import {useEffect, useState} from "react";
 import {useNavigate, useParams} from "react-router";
-import {IUser} from "@/models/user/types.ts";
+import {ISanctumUser, IUser} from "@/models/user/types.ts";
 import ProjectEdit from "./project-edit.tsx";
 import ProjectFiles from "@/components/pages/project/project-view/project-files.tsx";
 import {toast} from "sonner";
 import GenericLoader from "@/components/ui/genericLoader.tsx";
 import {useSanctum} from "react-sanctum";
+import {useEditor, EditorContent} from '@tiptap/react';
+import StarterKit from '@tiptap/starter-kit';
+import {Button} from "@/components/ui/button.tsx";
+import {Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose} from "@/components/ui/dialog.tsx";
+import {Edit3} from "lucide-react";
+import EditorToolbar from "./EditorToolbar.tsx"; // Import the toolbar
 
 function ProjectPage() {
     const {id} = useParams<{ id: string }>();
-    const {user} = useSanctum();
+    const {user} = useSanctum<ISanctumUser>();
     const [project, setProject] = useState({} as IProject);
+    const [readmeContent, setReadmeContent] = useState(''); // Initialize with empty string
     const [selectedUsers, setSelectedUsers] = useState<IUser[]>([]);
     const [projectUsers, setProjectUsers] = useState<IProjectUser[]>([]);
     const [isEditable, setIsEditable] = useState(false);
     const [isProjectUser, setIsProjectUser] = useState(false);
+    const [isReadmeEditorOpen, setIsReadmeEditorOpen] = useState(false);
     const navigate = useNavigate();
+
+    const editor = useEditor({
+        extensions: [
+            StarterKit,
+        ],
+        content: readmeContent,
+        // onUpdate: ({editor}) => {
+        //     setReadmeContent(editor.getHTML());
+        // },
+        editable: isEditable,
+    });
 
     useEffect(() => {
         axios
             .get(`/api/projects/${id}`)
-            .then((res) => setProject(res.data))
+            .then((res) => {
+                setProject(res.data);
+                setReadmeContent(res.data.description || 'asdf'); // Use project.description or default
+            })
             .catch((err) => {
                 toast.error("Ошибка при загрузке проекта: " + err.message);
                 if (err.response?.status === 404) navigate("/404");
                 if (err.response?.status === 403) navigate("/");
             });
-    }, [id, navigate]);
+
+        axios
+            .get(`/api/projects/${id}/readme`)
+            .then((res) => {
+                setReadmeContent(res.data.readme || ''); // Use readme or default to empty string
+                editor?.commands.setContent(res.data.readme || ''); // Set initial content in editor
+            })
+            .catch((err) => {
+                toast.error("Ошибка при загрузке README: " + err.message);
+            });
+
+    }, [editor?.commands, id, navigate]);
 
     useEffect(() => {
         axios
@@ -47,10 +80,22 @@ function ProjectPage() {
             setIsEditable(
                 projectUsers.some(
                     (u) => u.id === user.data.id && ["admin", "owner"].includes(u.pivot.role)
-                )
+                ) || user.data.roles.some(role => role.name === 'admin' || role.name === 'teacher')
             );
         }
     }, [projectUsers, user]);
+
+    useEffect(() => {
+        if (editor && isEditable !== editor.isEditable) {
+            editor.setEditable(isEditable);
+        }
+        // Update editor content when readmeContent changes from outside (e.g. initial load)
+        if (editor && readmeContent !== editor.getHTML()) {
+            editor.commands.setContent(readmeContent);
+        }
+    }, [isEditable, editor, readmeContent]);
+
+    console.log(project);
 
     if (!project) {
         return <GenericLoader/>
@@ -61,7 +106,7 @@ function ProjectPage() {
             <div className="">
                 {project.cover ? (
                     <img src={`${import.meta.env.VITE_APP_URL}/storage/${project.cover}`} alt="Cover preview"
-                         className="h-24 w-full object-contain rounded-t-md"/>) : (
+                         className="h-24 w-full object-cover rounded-t-md"/>) : (
                     <div className="h-24 w-full bg-gray-200 rounded-t-md"/>)}
             </div>
 
@@ -69,19 +114,21 @@ function ProjectPage() {
                 <Tabs defaultValue="overview">
                     <TabsList className="w-full rounded-none justify-start bg-gray-200">
                         <TabsTrigger value="overview">Описание</TabsTrigger>
-                        {isProjectUser && <TabsTrigger value="files">Файлы</TabsTrigger>}
-                        {isProjectUser && <TabsTrigger value="changes">Изменения</TabsTrigger>}
+                        <TabsTrigger value="files">Файлы</TabsTrigger>
                         {isEditable && <TabsTrigger value="settings">Настройки</TabsTrigger>}
                     </TabsList>
                     <TabsContent value={"overview"}>
-                        <div className="flex flex-row justify-between px-6 py-4">
-                            <div className="flex flex-col space-y-2">
+                        <div className="flex flex-wrap space-y-2 md:flex-row space-x-4 px-8 py-4 md:justify-between">
+                            {project.logo && (
+                                <img src={`${import.meta.env.VITE_APP_URL}/storage/${project.logo}`} alt="Logo preview"
+                                     className="h-36 w-36 object-cover rounded-md outline-1 outline-gray-200 order-1 md:order-2"/>)}
+                            <div className="flex flex-col space-y-2 order-2 md:order-1">
                                 <div className="flex flex-row items-center space-x-4"><p
                                     className="text-4xl font-bold">{project.name}</p><Badge className="w-24 h-8"
                                                                                             variant={"outline"}>{project.privacy === 'public' ? "Публичный" : "Приватный"}</Badge>
                                 </div>
-                                <div><p className="text-secondary-foreground text-wrap">{project.description}</p></div>
-                                <div className="flex space-x-1">{project.tags?.map((tag, index) => (
+                                <div><p className="text-secondary-foreground whitespace-normal break-all">{project.description}</p></div>
+                                <div className="flex flex-wrap space-x-1">{project.tags?.map((tag, index) => (
                                     <Badge key={index} variant={"outline"}>{tag.name}</Badge>
                                 ))}</div>
                                 <div className="flex space-x-1">{
@@ -93,57 +140,24 @@ function ProjectPage() {
                                 }</div>
                                 <div className="flex space-x-1"></div>
                             </div>
-                            {project.logo && (
-                                <img src={`${import.meta.env.VITE_APP_URL}/storage/${project.logo}`} alt="Logo preview"
-                                     className="h-36 w-36 object-cover rounded-md outline-1 outline-gray-200"/>)}
                         </div>
                         <hr/>
-                        <div className="flex py-2 px-4">
-                            <div className="container px-4 py-2">
+                        <div className="flex flex-col md:flex-row px-4 py-2">
+                            <div className="container order-2 md:order-1 px-4 py-2">
                                 <div className="inline-flex gap-1 items-center text-xl font-medium">
-                                    <BookOpen/><span>README</span></div>
-                                <div>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas porttitor egestas
-                                    finibus. Maecenas pulvinar sapien felis, at convallis ipsum vestibulum efficitur.
-                                    Nullam a ex hendrerit, auctor nulla sit amet, fringilla tortor. Donec euismod
-                                    volutpat aliquet. Curabitur fermentum, neque sed molestie porta, arcu leo finibus
-                                    est, ultricies semper orci libero sed tellus. Etiam rhoncus augue eu mi gravida, sed
-                                    malesuada orci congue. Morbi a tempus felis. Nulla semper vehicula tellus, nec
-                                    sollicitudin libero iaculis eget. Vivamus faucibus ex sapien, non condimentum ligula
-                                    aliquam id. In non lorem sed mi molestie molestie et nec massa. Sed a justo nec
-                                    magna porta semper nec suscipit tortor.
-
-                                    Vivamus imperdiet nunc ac sem efficitur, vel facilisis lectus facilisis. Suspendisse
-                                    egestas in quam laoreet tristique. Sed tristique, augue eget consectetur ornare, leo
-                                    eros sodales felis, vitae rutrum urna est bibendum diam. Sed hendrerit egestas
-                                    libero at dictum. Sed sed luctus leo. Pellentesque fermentum est vitae sapien
-                                    placerat, vitae fringilla lacus dapibus. Donec vitae facilisis neque. Nulla nec
-                                    tempus nulla, sit amet porta velit. Nullam ac sagittis lacus. Nulla ornare rhoncus
-                                    metus non viverra.
-
-                                    In dui lacus, facilisis eu sollicitudin eu, dignissim at diam. Sed non tellus
-                                    molestie mauris pretium scelerisque. Suspendisse placerat interdum nisl vel lacinia.
-                                    Nullam luctus nisi sit amet sollicitudin accumsan. Proin sollicitudin neque in lacus
-                                    finibus fringilla. Proin in viverra dui, sed fermentum justo. In id volutpat purus,
-                                    sit amet mollis mauris. Suspendisse porttitor lacus eros, et semper est sollicitudin
-                                    in. Aenean quis dignissim odio.
-
-                                    Pellentesque ullamcorper gravida auctor. Suspendisse feugiat fringilla eros in
-                                    iaculis. In interdum massa vulputate, bibendum libero vel, vehicula urna. Sed a mi
-                                    vel eros bibendum dapibus ut vel turpis. In vitae ex ipsum. Aliquam quis viverra ex.
-                                    Quisque et libero mollis, sagittis metus eu, dictum est.
-
-                                    Ut id tempor justo, non scelerisque leo. Phasellus molestie, libero eu aliquet
-                                    imperdiet, diam ex pellentesque neque, a suscipit tellus risus vitae arcu.
-                                    Pellentesque ornare ligula quis dictum luctus. Duis accumsan sem vitae urna
-                                    tincidunt fringilla. Etiam eget risus velit. Nullam pretium eget lacus non placerat.
-                                    Donec vehicula justo augue, eget dapibus mi gravida id. Donec arcu nisi, laoreet in
-                                    facilisis et, ornare eget augue. Pellentesque turpis erat, tempus id consequat at,
-                                    malesuada in ex. Morbi mollis egestas tincidunt. Aliquam erat volutpat. Nulla ac dui
-                                    tristique libero venenatis varius non at eros. Mauris malesuada dolor nisl, nec
-                                    suscipit nibh gravida nec.
+                                    <BookOpen/><span>README</span>
+                                    {isEditable && (
+                                        <Button variant="ghost" size="sm" onClick={() => setIsReadmeEditorOpen(true)}
+                                                className="ml-2">
+                                            <Edit3 className="h-4 w-4"/>
+                                        </Button>
+                                    )}
                                 </div>
+                                <div className={'text-wrap border p-2 rounded min-h-32'}
+                                     dangerouslySetInnerHTML={{__html: readmeContent}}/>
                             </div>
-                            <div className="flex flex-col max-w-96 px-2 py-1 rounded-md border-1 border-gray-200">
+                            <div
+                                className="flex order-1 md:order-2 flex-col max-w-96 px-2 mx-3 md:mx-0 py-1 rounded-md border-1 border-gray-200">
                                 <p className="font-medium text-xl">Участники</p>
                                 <hr/>
                                 <div className="flex flex-col py-1.5 space-y-1">
@@ -157,7 +171,7 @@ function ProjectPage() {
 
                     </TabsContent>
                     <TabsContent value="files">
-                        <ProjectFiles project={project}/>
+                        <ProjectFiles isProjectUser={isProjectUser || isEditable} project={project} />
                     </TabsContent>
                     <TabsContent value="settings">
                         <ProjectEdit project={project} setProject={setProject} projectUsers={projectUsers}
@@ -168,6 +182,50 @@ function ProjectPage() {
 
                 </Tabs>
             </div>
+
+            {isEditable && (
+                <Dialog open={isReadmeEditorOpen} onOpenChange={setIsReadmeEditorOpen}>
+                    <DialogContent className="sm:max-w-[80vw] md:max-w-[70vw] lg:max-w-[60vw] w-full">
+                        <DialogHeader>
+                            <DialogTitle>Редактирование README</DialogTitle>
+                        </DialogHeader>
+                        <div className="flex flex-col h-full overflow-hidden">
+                            <EditorToolbar editor={editor}/>
+                            <div
+                                className="prose dark:prose-invert max-w-none flex-grow overflow-auto border rounded-md p-2">
+                                <EditorContent editor={editor}/>
+                            </div>
+                        </div>
+                        <DialogFooter className="mt-auto pt-4">
+                            <DialogClose asChild>
+                                <Button type="button" variant="secondary" onClick={() => setIsReadmeEditorOpen(false)}>
+                                    Отмена
+                                </Button>
+                            </DialogClose>
+                            <Button type="button" onClick={() => {
+                                const newReadme = editor?.getHTML() || '';
+
+
+                                axios.put(`/api/projects/${id}/readme`, {readme: newReadme}).then((res) =>
+                                    {
+                                        if (res.status === 200) {
+                                            setReadmeContent(newReadme);
+                                            toast.success("README обновлено успешно.");
+                                        }
+                                    }
+                                ).catch((err) => {
+                                    toast.error("Ошибка при сохранении README: " + err.message);
+                                }).finally(() => {
+                                    setIsReadmeEditorOpen(false);
+                                });
+
+                            }}>
+                                Сохранить
+                            </Button>
+                        </DialogFooter>
+                    </DialogContent>
+                </Dialog>
+            )}
 
         </div>
     )

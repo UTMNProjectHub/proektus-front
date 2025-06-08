@@ -32,16 +32,16 @@ function Header({children}: HeaderProps) {
       <div className="w-full flex items-center justify-between">
         {/* Logo and Title */}
         <div className={'flex flex-row items-center gap-4'}>
-           <a href={'https://www.utmn.ru/'} className={"xs:hidden sm:visible"} rel={'noreferrer'}>
+           <a href={'https://www.utmn.ru/'} className={"hidden md:inline"} rel={'noreferrer'}>
              <div className={'flex'}>
                <img src={'https://www.utmn.ru/upload/medialibrary/47f/logo_utmn_mini2_rus.png'} alt={'utmn'}
                    className={'h-8 brightness-0 invert'}/>
              </div>
            </a>
-           <p className="text-white">|</p>
+           <p className="text-white hidden md:inline">|</p>
            <Link to={'/'}>
              <div className={'flex align-text-bottom'}>
-               <span className={'text-2xl font-bold tracking-tight font-montserrat text-white'}>Проектус</span>
+               <span className={'sm:text-lg lg:text-2xl font-bold tracking-tight font-montserrat text-white'}>Проектус</span>
              </div>
            </Link>
          </div>

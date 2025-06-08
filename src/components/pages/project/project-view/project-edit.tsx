@@ -58,6 +58,9 @@ const formSchema = z.object({
     name: z.string().min(1),
     description: z.string().optional(),
     privacy: z.enum(['public', 'private']),
+    cover: z.any().optional(),
+    logo: z.any().optional(),
+    repository_url: z.string().url().optional().or(z.literal('')), // Added for repository URL
 });
 
 function ProjectEdit({
@@ -74,6 +77,9 @@ function ProjectEdit({
             name: project.name,
             description: project.description || "",
             privacy: project.privacy,
+            cover: undefined,
+            logo: undefined,
+            repository_url: project.urls && project.urls[0]?.repository_url ? project.urls[0].repository_url : '', // Default to empty string if not set
         }
     })
 
@@ -81,8 +87,27 @@ function ProjectEdit({
 
     function onSubmit(values: z.infer<typeof formSchema>) {
         try {
-            axios.put(`/api/projects/${project.id}`, {
-                ...values
+            const formData = new FormData();
+            formData.append('name', values.name);
+            formData.append('description', values.description || '');
+            formData.append('privacy', values.privacy);
+
+            if (values.cover) {
+              formData.append('cover', values.cover);
+            }
+            if (values.logo) {
+              formData.append('logo', values.logo);
+            }
+            if (values.repository_url) {
+                formData.append('repository_url', values.repository_url);
+            }
+
+            formData.append('_method', 'PUT');
+
+            axios.post(`/api/projects/${project.id}`, formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                }
             }).then((response) => {
                 if (response.status === 200) {
                     toast.success("Проект успешно обновлен");
@@ -92,7 +117,7 @@ function ProjectEdit({
                     toast.error("Не удалось обновить проект" + response.statusText);
                 }
             });
-        } catch (error) {
+        } catch (error: any) {
             toast.error("Произошла ошибка при обновлении проекта, попробуйте позже" + error.message);
         }
     }
@@ -102,7 +127,7 @@ function ProjectEdit({
             const updatedUsers = projectUsers.filter((user) => user.id !== userId);
             setProjectUsers(updatedUsers);
             toast.success("Пользователь успешно удален из проекта");
-        }).catch((error) => {
+        }).catch((error: any) => {
             toast.error("Не удалось удалить пользователя из проекта, попробуйте позже" + error.message);
         });
     }
@@ -117,7 +142,7 @@ function ProjectEdit({
             });
             setProjectUsers(updatedUsers);
             toast.success("Роль пользователя успешно обновлена");
-        }).catch((error) => {
+        }).catch((error: any) => {
             toast.error("Не удалось обновить роль пользователя, попробуйте позже" + error.message);
         });
     }
@@ -129,7 +154,7 @@ function ProjectEdit({
             } else {
                 toast.error("Не удалось удалить проект");
             }
-        }).catch((error) => {
+        }).catch((error: any) => {
             toast.error("Произошла ошибка при удалении проекта, попробуйте позже" + error.message);
         });
     }
@@ -174,6 +199,65 @@ function ProjectEdit({
                                     </FormControl>
                                     <FormDescription>Краткое описание позволяющее понять ваш проект</FormDescription>
                                     <FormMessage/>
+                                </FormItem>
+                            )}
+                        />
+
+                        <FormField
+                            control={form.control}
+                            name="cover"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Обложка проекта</FormLabel>
+                                    <FormControl>
+                                        <Input
+                                            type="file"
+                                            accept="image/*"
+                                            // field.onChange expects a FileList, but react-hook-form might need a single file or string.
+                                            // Adjust if your backend/form handling expects a different format.
+                                            onChange={(e) => field.onChange(e.target.files ? e.target.files[0] : null)}
+                                        />
+                                    </FormControl>
+                                    <FormDescription>Выберите изображение для обложки вашего проекта.</FormDescription>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+
+                        <FormField
+                            control={form.control}
+                            name="logo"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Логотип проекта</FormLabel>
+                                    <FormControl>
+                                        <Input
+                                            type="file"
+                                            accept="image/*"
+                                            onChange={(e) => field.onChange(e.target.files ? e.target.files[0] : null)}
+                                        />
+                                    </FormControl>
+                                    <FormDescription>Выберите изображение для логотипа вашего проекта.</FormDescription>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+
+                        <FormField
+                            control={form.control}
+                            name="repository_url"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Ссылка на репозиторий</FormLabel>
+                                    <FormControl>
+                                        <Input
+                                            placeholder="https://github.com/your/project"
+                                            type="url"
+                                            {...field}
+                                        />
+                                    </FormControl>
+                                    <FormDescription>Укажите URL вашего репозитория (например, GitHub, GitLab).</FormDescription>
+                                    <FormMessage />
                                 </FormItem>
                             )}
                         />

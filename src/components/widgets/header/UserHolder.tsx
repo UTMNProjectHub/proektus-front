@@ -9,11 +9,19 @@ import {Link, useNavigate} from "react-router";
 import {useSanctum} from "react-sanctum";
 import {Skeleton} from "@/components/ui/skeleton.tsx";
 import UserBadge from "@/components/ui/userbadge";
+import {useEffect, useState} from "react";
 
 function UserHolder() {
 
   const {user, authenticated, signOut} = useSanctum();
   const navigate = useNavigate();
+  const [isPortable, setIsPortable] = useState(window.innerWidth < 640);
+
+  useEffect(() => {
+    const handleResize = () => setIsPortable(window.innerWidth < 640);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   if (authenticated === null) {
     return (
@@ -47,7 +55,7 @@ function UserHolder() {
   }
 
 
-  const fullName = user.data.middlename ? `${user.data.surname} ${user.data.firstname.slice(0, 1)}. ${user.data.middlename.slice(0, 1)}.` : `${user.data.surname} ${user.data.firstname.slice(0, 1)}.`;
+  // const fullName = user.data.middlename ? `${user.data.surname} ${user.data.firstname.slice(0, 1)}. ${user.data.middlename.slice(0, 1)}.` : `${user.data.surname} ${user.data.firstname.slice(0, 1)}.`;
 
 
   return (
@@ -57,7 +65,7 @@ function UserHolder() {
           <AvatarFallback>{user.data.firstname.slice(0, 1)}</AvatarFallback>
         </Avatar>
         <span className="text-white font-light font-montserrat">{fullName} (@{user.data.name})</span> */}
-        <UserBadge className="text-white" user={user.data} withFullName={true} />
+        <UserBadge className="text-white" user={user.data} withFullName={true} portable={isPortable} />
       </DropdownMenuTrigger>
       <DropdownMenuContent>
         <DropdownMenuLabel>
