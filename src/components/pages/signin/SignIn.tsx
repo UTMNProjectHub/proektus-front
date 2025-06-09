@@ -159,7 +159,7 @@ function NewSignIn() {
                       <FormItem>
                         <FormLabel>электропочта</FormLabel>
                         <FormControl>
-                          <Input placeholder={'example@utmn.ru'} {...field} />
+                          <Input placeholder={'example@utmn.ru'} autoComplete={'email'} {...field} />
                         </FormControl>
                         <FormDescription>
                           электропочта, должна быть в домене utmn.ru
@@ -173,7 +173,7 @@ function NewSignIn() {
                       <FormItem>
                         <FormLabel>пароль</FormLabel>
                         <FormControl>
-                          <PasswordInput placeholder={'*******'} {...field} />
+                          <PasswordInput placeholder={'*******'} autoComplete={'current-password'} {...field} />
                         </FormControl>
                         <FormDescription>
                           пароль должен быть не менее 8 символов, с заглавной буквой и спецсимволом
@@ -242,7 +242,7 @@ function NewSignIn() {
                       <FormItem>
                         <FormLabel>электропочта</FormLabel>
                         <FormControl>
-                          <Input type={'email'} placeholder={'example@utmn.ru'} {...field} />
+                          <Input type={'email'} autoComplete={'email'} placeholder={'example@utmn.ru'} {...field} />
                         </FormControl>
                         <FormDescription>
                           электропочта, должна быть в домене utmn.ru
@@ -256,7 +256,7 @@ function NewSignIn() {
                       <FormItem>
                         <FormLabel>username</FormLabel>
                         <FormControl>
-                          <Input placeholder={'username'} {...field} />
+                          <Input placeholder={'username'} autoComplete={'username'} {...field} />
                         </FormControl>
                         <FormDescription>
                           ваш username, должен быть уникальным
@@ -270,7 +270,7 @@ function NewSignIn() {
                       <FormItem>
                         <FormLabel>пароль</FormLabel>
                         <FormControl>
-                          <Input type={'password'} placeholder={'******'} {...field} />
+                          <Input type={'password'} placeholder={'******'} autoComplete={'current-password'} {...field} />
                         </FormControl>
                         <FormDescription>
                           пароль должен быть не менее 8 символов, с заглавной буквой и спецсимволом
@@ -298,7 +298,7 @@ function NewSignIn() {
                       <FormItem>
                         <FormLabel>фамилия</FormLabel>
                         <FormControl>
-                          <Input placeholder={'Ivanov'} {...field} />
+                          <Input placeholder={'Ivanov'} autoComplete={'surname'} {...field} />
                         </FormControl>
                         <FormMessage/>
                       </FormItem>
@@ -309,7 +309,7 @@ function NewSignIn() {
                       <FormItem>
                         <FormLabel>имя</FormLabel>
                         <FormControl>
-                          <Input placeholder={'Ivan'} {...field} />
+                          <Input placeholder={'Ivan'} autoComplete={'name'} {...field} />
                         </FormControl>
                         <FormMessage/>
                       </FormItem>
@@ -320,7 +320,7 @@ function NewSignIn() {
                       <FormItem>
                         <FormLabel>отчество</FormLabel>
                         <FormControl>
-                          <Input placeholder={'Ivanovich'} {...field} />
+                          <Input placeholder={'Ivanovich'} autoComplete={'middlename'} {...field} />
                         </FormControl>
                         <FormMessage/>
                       </FormItem>

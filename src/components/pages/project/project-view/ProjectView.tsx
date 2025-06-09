@@ -36,9 +36,6 @@ function ProjectPage() {
             StarterKit,
         ],
         content: readmeContent,
-        // onUpdate: ({editor}) => {
-        //     setReadmeContent(editor.getHTML());
-        // },
         editable: isEditable,
     });
 
@@ -47,7 +44,6 @@ function ProjectPage() {
             .get(`/api/projects/${id}`)
             .then((res) => {
                 setProject(res.data);
-                setReadmeContent(res.data.description || 'asdf'); // Use project.description or default
             })
             .catch((err) => {
                 toast.error("Ошибка при загрузке проекта: " + err.message);
@@ -58,8 +54,8 @@ function ProjectPage() {
         axios
             .get(`/api/projects/${id}/readme`)
             .then((res) => {
-                setReadmeContent(res.data.readme || ''); // Use readme or default to empty string
-                editor?.commands.setContent(res.data.readme || ''); // Set initial content in editor
+                const newReadme = res.data.readme || '';
+                setReadmeContent(newReadme);
             })
             .catch((err) => {
                 toast.error("Ошибка при загрузке README: " + err.message);
@@ -89,9 +85,8 @@ function ProjectPage() {
         if (editor && isEditable !== editor.isEditable) {
             editor.setEditable(isEditable);
         }
-        // Update editor content when readmeContent changes from outside (e.g. initial load)
         if (editor && readmeContent !== editor.getHTML()) {
-            editor.commands.setContent(readmeContent);
+            editor.commands.setContent(readmeContent, false);
         }
     }, [isEditable, editor, readmeContent]);
 
@@ -99,7 +94,7 @@ function ProjectPage() {
         console.log(project);
     }
 
-    if (project === null) { // Explicitly check for null
+    if (project === null) {
         return <GenericLoader/>
     }
 
