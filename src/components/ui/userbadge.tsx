@@ -24,7 +24,7 @@ function UserBadge({className, ...props}: UserBadgeProps) {
                 <span className={'font-light font-montserrat'}>@{props.user.name}</span>
                 :
                 <span className="font-light font-montserrat">
-                    {props.withFullName ? `${props.user.surname} ${props.user.firstname.slice(0, 1)}. ${props.user.middlename.slice(0, 1)}. (@${props.user.name})` : `@${props.user.name}`}
+                    {props.withFullName ? `${props.user.surname} ${props.user.firstname.slice(0, 1)}. ${props.user.middlename?.slice(0, 1) ?? ''}. (@${props.user.name})` : `@${props.user.name}`}
                 </span>
             }
         </div>

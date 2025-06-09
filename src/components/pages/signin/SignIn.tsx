@@ -26,7 +26,7 @@ import {PasswordInput} from "@/components/ui/password-input.tsx";
 const loginSchema = z.object({
   email: z.string().email(),
   password: z.string().min(8),
-  remember: z.boolean(),
+  remember: z.boolean().optional()
 });
 
 const registerSchema = z.object({
