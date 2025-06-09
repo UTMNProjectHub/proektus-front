@@ -20,6 +20,8 @@ export interface IProject {
     id: number
     name: string
     description: string
+    short_description?: string | null
+    annotation?: string | null
     logo: string
     cover: string | null
     created_at: string

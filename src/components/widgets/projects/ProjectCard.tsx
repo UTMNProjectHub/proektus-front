@@ -24,7 +24,7 @@ function ProjectCard(props: ProjectCardProps) {
           <CardContent>
               {project.tags && project.tags.length > 0 && (
                 <div className="flex flex-wrap gap-0.5">
-                  {project.tags.slice(0, 5).map((tag, index) => (
+                  {project.tags.slice(0, 8).map((tag, index) => (
                       <Badge key={index}>{tag.name}</Badge>
                   ))}
                 </div>

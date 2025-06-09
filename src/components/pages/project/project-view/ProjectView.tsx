@@ -3,7 +3,7 @@ import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/components/ui/tabs.tsx
 import UserBadge from "@/components/ui/userbadge";
 import {IProject, IProjectUser} from "@/components/widgets/projects/types/ProjectTypes";
 import axios from "axios";
-import {BookOpen, GitBranch} from "lucide-react";
+import {BookOpen, FileText, GitBranch} from "lucide-react";
 import {useEffect, useState} from "react";
 import {useNavigate, useParams} from "react-router";
 import {ISanctumUser, IUser} from "@/models/user/types.ts";
@@ -125,7 +125,7 @@ function ProjectPage() {
                                 <img src={`${import.meta.env.VITE_APP_URL}/storage/${project.logo}`} alt="Logo preview"
                                      className="h-36 w-36 object-cover rounded-md outline-1 outline-gray-200 order-1 md:order-2"/>)}
                             <div className="flex flex-col space-y-2 order-2 md:order-1">
-                                <div className="flex flex-row items-center space-x-4"><p
+                                <div className="flex flex-row flex-wrap space-y-2 items-center space-x-4"><p
                                     className="text-4xl font-bold">{project.name}</p><Badge className="w-24 h-8"
                                                                                             variant={"outline"}>{project.privacy === 'public' ? "Публичный" : "Приватный"}</Badge>
                                 </div>
@@ -145,7 +145,11 @@ function ProjectPage() {
                         </div>
                         <hr/>
                         <div className="flex flex-col md:flex-row justify-between px-4 py-2">
-                            <div className="max-w-[80%] flex-grow order-2 md:order-1 px-4 py-2">
+                            <div className="max-w-[80%] space-y-2 flex-grow order-2 md:order-1 px-4 py-2">
+                                {project.annotation && <div className={'inline-flex flex-col gap-1'}>
+                                    <p className={'flex gap-1 flex-row'}><FileText/><span className={'text-xl font-medium'}>Аннотация: </span></p>
+                                    <p className={'border px-2 py-1 rounded-md text-wrap'}>{project.annotation}</p>
+                                </div>}
                                 <div className="inline-flex gap-1 items-center text-xl font-medium">
                                     <BookOpen/><span>README</span>
                                     {isEditable && (
