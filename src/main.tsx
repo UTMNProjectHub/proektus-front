@@ -59,13 +59,13 @@ window.Echo = new Echo({
       authorize: (socketId, callback) => {
         axios.post('/broadcasting/auth', {
           socket_id: socketId,
-          channel_name: channel.name
+          channel_name: channel.name,
         })
             .then(response => {
               callback(null, response.data);
             })
             .catch(error => {
-              callback(error.message, null);
+              callback(error, null);
             });
       }
     };

@@ -13,6 +13,7 @@ import {useForm} from "react-hook-form";
 import {zodResolver} from "@hookform/resolvers/zod";
 import {Button} from "@/components/ui/button.tsx";
 import axios from "axios";
+import {toast} from "sonner";
 
 const accepting = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document, application/msword, application/pdf, application/vnd.ms-excel, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, text/csv';
 
@@ -54,11 +55,16 @@ function LoadingForm({projectId, setOpen}: { projectId: number, setOpen: (open: 
         headers: {
           'Content-Type': 'multipart/form-data'
         }
-      }).then(res => {console.log(res)}).finally(() => {setOpen(false)});
-    } catch (e) {
-      console.log(e);
+      }).then(res => {console.log(res)}).finally(() => {setOpen(false)}).catch((error) => {
+        toast.error("Ошибка при загрузке файла: " + error.message);
+      });
     }
-  };
+    catch (error) {
+      if (import.meta.env.DEV) {
+        console.error("Error during file upload:", error);
+      }
+    }
+  }
 
   return (
     <>

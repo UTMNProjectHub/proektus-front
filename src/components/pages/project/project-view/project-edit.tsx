@@ -119,6 +119,15 @@ function ProjectEdit({
             });
         } catch (error: any) {
             toast.error("Произошла ошибка при обновлении проекта, попробуйте позже" + error.message);
+
+            const errors = error.response.data;
+
+            for (const key in errors) {
+                form.setError(key as keyof z.infer<typeof formSchema>, {
+                    type: "manual",
+                    message: errors[key][0],
+                });
+            }
         }
     }
 
@@ -154,7 +163,7 @@ function ProjectEdit({
             } else {
                 toast.error("Не удалось удалить проект");
             }
-        }).catch((error: any) => {
+        }).catch((error) => {
             toast.error("Произошла ошибка при удалении проекта, попробуйте позже" + error.message);
         });
     }

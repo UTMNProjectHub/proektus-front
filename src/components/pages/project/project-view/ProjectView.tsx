@@ -144,8 +144,8 @@ function ProjectPage() {
                             </div>
                         </div>
                         <hr/>
-                        <div className="flex flex-col md:flex-row px-4 py-2">
-                            <div className="container order-2 md:order-1 px-4 py-2">
+                        <div className="flex flex-col md:flex-row justify-between px-4 py-2">
+                            <div className="max-w-[80%] flex-grow order-2 md:order-1 px-4 py-2">
                                 <div className="inline-flex gap-1 items-center text-xl font-medium">
                                     <BookOpen/><span>README</span>
                                     {isEditable && (
@@ -155,11 +155,11 @@ function ProjectPage() {
                                         </Button>
                                     )}
                                 </div>
-                                <div className={'text-wrap border p-2 rounded min-h-32 prose dark:prose-invert max-w-none flex-grow overflow-auto'}
+                                <div className={'text-wrap border p-2 rounded min-h-32 prose dark:prose-invert max-w-none overflow-auto'}
                                      dangerouslySetInnerHTML={{__html: readmeContent}}/>
                             </div>
                             <div
-                                className="flex order-1 md:order-2 flex-col max-w-96 px-2 mx-3 md:mx-0 py-1 rounded-md border-1 border-gray-200">
+                                className="flex order-1 flex-grow-0 md:order-2 flex-col max-w-96 px-2 mx-3 md:mx-0 py-1 rounded-md border-1 border-gray-200">
                                 <p className="font-medium text-xl">Участники</p>
                                 <hr/>
                                 <div className="flex flex-col py-1.5 space-y-1">
