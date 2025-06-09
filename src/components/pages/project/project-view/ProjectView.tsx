@@ -155,7 +155,7 @@ function ProjectPage() {
                                         </Button>
                                     )}
                                 </div>
-                                <div className={'text-wrap border p-2 rounded min-h-32'}
+                                <div className={'text-wrap border p-2 rounded min-h-32 prose dark:prose-invert max-w-none flex-grow overflow-auto'}
                                      dangerouslySetInnerHTML={{__html: readmeContent}}/>
                             </div>
                             <div

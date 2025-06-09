@@ -127,8 +127,8 @@ function ProjectEdit({
             const updatedUsers = projectUsers.filter((user) => user.id !== userId);
             setProjectUsers(updatedUsers);
             toast.success("Пользователь успешно удален из проекта");
-        }).catch((error: any) => {
-            toast.error("Не удалось удалить пользователя из проекта, попробуйте позже" + error.message);
+        }).catch((error) => {
+            toast.error("Не удалось удалить пользователя из проекта, попробуйте позже: " + error.response.data.error);
         });
     }
 
@@ -143,7 +143,7 @@ function ProjectEdit({
             setProjectUsers(updatedUsers);
             toast.success("Роль пользователя успешно обновлена");
         }).catch((error: any) => {
-            toast.error("Не удалось обновить роль пользователя, попробуйте позже" + error.message);
+            toast.error("Не удалось обновить роль пользователя, попробуйте позже" + error.response.error);
         });
     }
 
@@ -284,7 +284,7 @@ function ProjectEdit({
                     <div className="flex flex-col space-y-1.5">
                         {projectUsers && projectUsers.map((user) => (
                             <Badge key={user.id} variant="outline"
-                                   className="max-w-lg flex items-center gap-3 px-2 py-1">
+                                   className="max-w-md flex flex-wrap items-center gap-3 px-2 py-1">
                                 <Avatar className="w-8 h-8">
                                     <AvatarImage src={"/placeholder.svg"} alt={user.name}/>
                                     <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
