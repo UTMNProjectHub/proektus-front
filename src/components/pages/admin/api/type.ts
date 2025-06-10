@@ -3,7 +3,7 @@ export interface User {
   name: string
   firstname: string
   surname: string
-  middlename: any
+  middlename: string | null
   email: string
   created_at: string
   roles: string[]

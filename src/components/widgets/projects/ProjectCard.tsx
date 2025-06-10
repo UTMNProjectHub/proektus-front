@@ -1,6 +1,7 @@
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { IProject } from "./types/ProjectTypes";
 import { useNavigate } from "react-router";
+import {Badge} from "@/components/ui/badge.tsx";
 
 interface ProjectCardProps {
     project: IProject,
@@ -18,9 +19,16 @@ function ProjectCard(props: ProjectCardProps) {
           </div>
           <CardHeader className="pt-4">
             <CardTitle>{project.name}</CardTitle>
-            {project.description && <CardDescription>{project.description}</CardDescription>}
+            {project.description && <CardDescription className={'whitespace-normal break-all'}>{project.description}</CardDescription>}
           </CardHeader>
           <CardContent>
+              {project.tags && project.tags.length > 0 && (
+                <div className="flex flex-wrap gap-0.5">
+                  {project.tags.slice(0, 8).map((tag, index) => (
+                      <Badge key={index}>{tag.name}</Badge>
+                  ))}
+                </div>
+              )}
           </CardContent>
           <CardFooter className="flex justify-between">
             <div className="flex items-center justify-end w-full">

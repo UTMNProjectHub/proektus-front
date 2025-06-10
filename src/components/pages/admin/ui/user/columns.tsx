@@ -37,7 +37,6 @@ export const userColumns: ColumnDef<User>[] = [
   {
     id: 'userActions',
     cell: ({row}) => {
-      const user = row.original;
 
       return (
         <DropdownMenu>

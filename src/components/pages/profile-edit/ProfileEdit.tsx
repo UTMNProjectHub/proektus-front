@@ -16,30 +16,32 @@ import { PasswordInput } from "@/components/ui/password-input.tsx";
 import { useSanctum } from "react-sanctum";
 import {useEffect} from "react";
 import GenericLoader from "@/components/ui/genericLoader";
+import axios from "axios";
+import {toast} from "sonner";
 
 const profileSchema = z.object({
     surname: z.string().min(1, 'Поле фамилии не может быть пустым'),
     firstname: z.string().min(1, "Поле фамилии не может быть пустым"),
-    middlename: z.string(),
-    username: z.string().min(2, "Юзернейм должен содержать минимум 2 символа"),
+    middlename: z.string().optional(),
+    name: z.string().min(2, "Юзернейм должен содержать минимум 2 символа"),
     email: z.string()
         .email("Введите корректный email")
         .regex(/^[a-z0-9]+@utmn\.ru$/, "Email должен быть в домене utmn.ru"),
-    OldPassword: passwordSchema,
-    password: passwordSchema,
+    old_password: passwordSchema,
+    password: passwordSchema.optional(),
 });
 
 const ProfileEdit = () => {
-    const { user, authenticated } = useSanctum();
+    const { user, authenticated, setUser } = useSanctum();
     const form = useForm<z.infer<typeof profileSchema>>({
         resolver: zodResolver(profileSchema),
         defaultValues: {
             surname: "",
             firstname: "",
             middlename: "",
-            username: "",
+            name: "",
             email: "",
-            OldPassword: "",
+            old_password: "",
             password: "",
         },
     });
@@ -50,7 +52,7 @@ const ProfileEdit = () => {
                 surname: user.data.surname,
                 firstname: user.data.firstname,
                 middlename: user.data.middlename || "",
-                username: user.data.name || "",
+                name: user.data.name || "",
                 email: user.data.email || "",
             });
         }
@@ -58,14 +60,40 @@ const ProfileEdit = () => {
 
 
     const onSubmit = (data: z.infer<typeof profileSchema>) => {
-        console.log("Форма отправлена:", data);
+        axios.put(`/api/profile`, data, {
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        }).then((res) => {
+            if (res.status === 200) {
+                // window.location.reload(); // Removed page reload
+                toast.success("Профиль успешно обновлен");
+
+                if (setUser && res.data.user) { // Check if setUser and res.data exist
+                    setUser({ data: res.data.user }); 
+                }
+            }
+        }).catch((err) => {
+            if (err.status === 422) {
+                const errors = err.response.data;
+
+                for (const key in errors) {
+                    form.setError(key as keyof z.infer<typeof profileSchema>, {
+                        type: "manual",
+                        message: errors[key][0],
+                    });
+                }
+            } else {
+                toast.error("Произошла ошибка при обновлении профиля", err.message);
+            }
+        })
     };
 
     if (authenticated === null) {
         return (
           <GenericLoader/>
         )
-      }
+    }
 
     return (
         <div className="max-w-md mx-auto my-2 p-6 bg-white rounded-lg shadow-md">
@@ -117,7 +145,7 @@ const ProfileEdit = () => {
 
                     <FormField
                         control={form.control}
-                        name="username"
+                        name="name"
                         render={({ field }) => (
                             <FormItem>
                                 <FormLabel>Никнейм</FormLabel>
@@ -145,7 +173,7 @@ const ProfileEdit = () => {
 
                     <FormField
                         control={form.control}
-                        name="OldPassword"
+                        name="old_password"
                         render={({ field }) => (
                             <FormItem>
                                 <FormLabel>Старый пароль</FormLabel>
