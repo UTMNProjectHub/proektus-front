@@ -65,10 +65,6 @@ function Dashboard({ personal = false }: { personal?: boolean }) {
   }, [pageParam, pageData.last_page, page, navigate]);
 
   useEffect(() => {
-    if (personal && !user) {
-      return;
-    }
-
     const url = personal && user ? `/api/projects?page=${page}&per_page=${pageSize}&user=${user.data.id}` :
       `/api/projects?page=${page}&per_page=${pageSize}`;
 
@@ -109,6 +105,8 @@ function Dashboard({ personal = false }: { personal?: boolean }) {
     }
     return range;
   })();
+
+  console.log(pageData.data);
 
   return (
     <div className="container flex flex-col mx-auto px-4 py-6">
