@@ -25,7 +25,7 @@ import {
 import { Label } from "@/components/ui/label";
 import axios from "axios";
 import { useNavigate } from "react-router";
-import {toast} from "sonner";
+import { toast } from "sonner";
 
 const formSchema = z.object({
   name: z.string().min(2, {
@@ -108,16 +108,28 @@ function ProjectCreate() {
       console.log("Logo file:", logoFile);
       console.log("Cover file:", coverFile);
 
-      await axios.post("/api/projects", formData, {
-        headers: {"Content-Type": "multipart/form-data"},
-      }).then((response) => {
-        if (response.status === 201) {
-          toast.success("Проект успешно создан!");
-          navigate(`/projects/my`);
-        }
-      }).catch((error) => {
-        toast.error("Ошибка при создании проекта: " + error.message);
-      });
+      await axios
+        .post("/api/projects", formData, {
+          headers: { "Content-Type": "multipart/form-data" },
+        })
+        .then((response) => {
+          if (response.status === 201) {
+            toast.success("Проект успешно создан!");
+            navigate(`/projects/my`);
+          }
+        })
+        .catch((error) => {
+          toast.error("Ошибка при создании проекта: " + error.message);
+
+          const errors = error.response.data;
+
+          for (const key in errors) {
+            form.setError(key as keyof z.infer<typeof formSchema>, {
+              type: "manual",
+              message: errors[key][0],
+            });
+          }
+        });
     } catch (e) {
       toast.error(e.message);
     } finally {
@@ -187,6 +199,11 @@ function ProjectCreate() {
                         accept="image/*"
                         onChange={handleLogoChange}
                       />
+                      {form.formState.errors.logo && (
+                        <p className="mt-1 text-sm text-destructive">
+                          {form.formState.errors.logo?.message}
+                        </p>
+                      )}
                     </div>
                   </div>
 
@@ -215,6 +232,11 @@ function ProjectCreate() {
                         accept="image/*"
                         onChange={handleCoverChange}
                       />
+                      {form.formState.errors.cover && (
+                        <p className="mt-1 text-sm text-destructive">
+                          {form.formState.errors.cover?.message}
+                        </p>
+                      )}
                     </div>
                   </div>
 
