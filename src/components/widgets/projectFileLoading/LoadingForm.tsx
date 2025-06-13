@@ -108,7 +108,7 @@ function LoadingForm({
                 </FormControl>
                 <FormDescription>
                   Для загрузки разрешены файлы только с следующими разрешениями:
-                  .doc, .docx, .pdf, .xls, .xlsx, .csv
+                  .docx, .pdf, .txt
                 </FormDescription>
                 <FormMessage />
               </FormItem>
