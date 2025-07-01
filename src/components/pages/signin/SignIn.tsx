@@ -254,12 +254,12 @@ function NewSignIn() {
                   <FormField control={registerForm.control} name={'name'} render={({field}) => {
                     return (
                       <FormItem>
-                        <FormLabel>username</FormLabel>
+                        <FormLabel>имя пользователя</FormLabel>
                         <FormControl>
                           <Input placeholder={'username'} autoComplete={'username'} {...field} />
                         </FormControl>
                         <FormDescription>
-                          ваш username, должен быть уникальным
+                          ваше имя пользователя, должно быть уникальным
                         </FormDescription>
                         <FormMessage/>
                       </FormItem>
